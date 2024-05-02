@@ -1,4 +1,19 @@
-document.getElementById('generate').addEventListener('click', function() {
-    const numbers = Array.from({length: 6}, () => Math.floor(Math.random() * 45) + 1);
-    document.getElementById('numbers').innerText = '생성된 번호: ' + numbers.join(', ');
-});
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+h1 {
+    color: #333;
+}
+
+button {
+    padding: 10px 20px;
+    margin-top: 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
