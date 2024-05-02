@@ -1,3 +1,28 @@
-function changeText() {
-    document.getElementById("demo").innerHTML = "텍스트가 변경되었습니다!";
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+#numbers {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #666;
 }
