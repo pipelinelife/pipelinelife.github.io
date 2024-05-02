@@ -1,15 +1,13 @@
-document.querySelector('.generate-btn').addEventListener('click', function() {
-    let numbers = [];
-    while(numbers.length < 6) {
-        let r = Math.floor(Math.random() * 45) + 1;
-        if(numbers.indexOf(r) === -1) numbers.push(r);
-    }
-    const display = document.querySelector('.number-display');
-    display.innerHTML = '';  // Clear previous numbers
-    numbers.forEach(num => {
-        let div = document.createElement('div');
-        div.className = 'number-box';
-        div.textContent = num;
-        display.appendChild(div);
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('generate').addEventListener('click', function() {
+        let lottoNumbers = new Set();
+        while (lottoNumbers.size < 6) {
+            lottoNumbers.add(Math.floor(Math.random() * 45) + 1);
+        }
+        const numbersContainer = document.getElementById('numbers');
+        const newNumbersDiv = document.createElement('div');
+        newNumbersDiv.className = 'numbers-row'; // 새로운 번호 세트를 위한 div 생성
+        newNumbersDiv.textContent = Array.from(lottoNumbers).join(', '); // 번호 추가
+        numbersContainer.appendChild(newNumbersDiv); // 번호 세트를 numbersContainer에 추가
     });
 });
