@@ -1,19 +1,9 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    background-color: #f4f4f4;
-}
-
-h1 {
-    color: #333;
-}
-
-button {
-    padding: 10px 20px;
-    margin-top: 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('generate').addEventListener('click', function() {
+        let lottoNumbers = new Set();
+        while (lottoNumbers.size < 6) {
+            lottoNumbers.add(Math.floor(Math.random() * 45) + 1);
+        }
+        document.getElementById('numbers').innerText = '생성된 번호: ' + Array.from(lottoNumbers).join(', ');
+    });
+});
