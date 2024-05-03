@@ -1,3 +1,4 @@
+/* 전체 페이지 스타일 설정 */
 body, html {
     margin: 0;
     padding: 0;
@@ -6,23 +7,28 @@ body, html {
     text-align: center;
 }
 
+/* 페이지 컨테이너 설정 */
 .container {
     max-width: 600px;
     margin: auto;
     padding: 20px;
 }
 
+/* 번호 생성 버튼 스타일 */
 .generate-btn {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 20px;
+    background-color: #4CAF50; /* 버튼 배경 색 */
+    color: white; /* 글자 색 */
+    border: none; /* 테두리 없음 */
+    padding: 10px 20px; /* 내부 여백 */
+    border-radius: 5px; /* 모서리 둥글게 */
+    cursor: pointer; /* 커서 모양 변경 */
+    font-size: 16px; /* 글자 크기 */
+    margin: 30px auto; /* 상하 30px, 좌우 자동(중앙 정렬) */
+    display: block; /* 블록 레벨 요소로 변경 */
+    width: 200px; /* 너비 설정 */
 }
 
+/* 번호 표시 영역 스타일 */
 .numbers-area {
     background-color: #e4e4e4;
     padding: 10px;
@@ -31,6 +37,7 @@ body, html {
     min-height: 50px; /* 최소 높이 설정 */
 }
 
+/* 번호 행 스타일 */
 .numbers-row {
     display: flex;
     justify-content: center;
@@ -38,6 +45,7 @@ body, html {
     margin: 10px 0;
 }
 
+/* 각 번호 스타일 */
 .number-box {
     width: 40px;
     height: 40px;
