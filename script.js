@@ -6,8 +6,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const numbersContainer = document.getElementById('numbers');
         const newNumbersDiv = document.createElement('div');
-        newNumbersDiv.className = 'numbers-row'; // 새로운 번호 세트를 위한 div 생성
-        newNumbersDiv.textContent = Array.from(lottoNumbers).join(', '); // 번호 추가
-        numbersContainer.appendChild(newNumbersDiv); // 번호 세트를 numbersContainer에 추가
+        newNumbersDiv.className = 'numbers-row';
+        newNumbersDiv.textContent = Array.from(lottoNumbers).join(', ');
+
+        // numbersContainer의 첫 번째 자식 요소로 새 번호 세트를 추가
+        if (numbersContainer.firstChild) {
+            numbersContainer.insertBefore(newNumbersDiv, numbersContainer.firstChild);
+        } else {
+            numbersContainer.appendChild(newNumbersDiv);
+        }
     });
 });
