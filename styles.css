@@ -82,15 +82,6 @@ body, html {
 .number-box[data-number='31-40'] { background-color: #AAAAAA; }
 .number-box[data-number='41-45'] { background-color: #B0D840; }
 
-/* 번호 행 스타일 수정 */
-.numbers-row {
-    display: flex;
-    overflow: auto; /* 넘치는 내용을 스크롤로 처리 */
-    justify-content: center;
-    flex-wrap: nowrap; /* 줄바꿈 방지 */
-    min-width: 1200px; /* 최소 너비 증가 */
-    width: 100%; /* 화면 너비에 맞춤 */
-    align-items: center; /* 세로 중앙 정렬 */
-}
+
 
 

@@ -32,13 +32,15 @@ document.addEventListener('DOMContentLoaded', function() {
             newCurrentNumbersDiv.appendChild(numDiv);
         });
 
-        // 현재 번호가 있는 경우 이를 과거 번호로 이동
-        if (displayNumbersContainer.firstChild) {
-            pastNumbersContainer.insertBefore(displayNumbersContainer.firstChild, pastNumbersContainer.firstChild);
-        }
-
         // 새로운 번호를 현재 번호 영역에 표시
-        displayNumbersContainer.appendChild(newCurrentNumbersDiv);
+        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
+
+        // 과거 번호를 "생성된 번호" 영역으로 이동
+        if (displayNumbersContainer.children.length > 1) { // 첫 번째 이외의 요소가 있으면 이동
+            Array.from(displayNumbersContainer.children).slice(1).forEach(child => {
+                pastNumbersContainer.appendChild(child);
+            });
+        }
     });
 });
 
