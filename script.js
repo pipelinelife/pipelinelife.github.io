@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const numDiv = document.createElement('div');
             numDiv.className = 'number-box';
             numDiv.textContent = num;
+            numDiv.style.backgroundColor = getColorForNumber(num);
             newCurrentNumbersDiv.appendChild(numDiv);
         });
 
@@ -26,3 +27,17 @@ document.addEventListener('DOMContentLoaded', function() {
         currentNumbersContainer.appendChild(newCurrentNumbersDiv);
     });
 });
+
+function getColorForNumber(number) {
+    if (number <= 10) {
+        return '#FBC400'; // Yellow
+    } else if (number <= 20) {
+        return '#69C8F2'; // Blue
+    } else if (number <= 30) {
+        return '#FF7272'; // Red
+    } else if (number <= 40) {
+        return '#AAAAAA'; // Grey
+    } else {
+        return '#B0D840'; // Green
+    }
+}
