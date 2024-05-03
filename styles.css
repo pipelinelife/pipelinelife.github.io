@@ -6,14 +6,34 @@ body, html {
     text-align: center;
 }
 
-.numbers-row {
-    background-color: #e4e4e4;
-    margin: 10px 0;
-    padding: 5px;
+.container {
+    max-width: 600px;
+    margin: auto;
+}
+
+.generate-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
     border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 20px 0;
+}
+
+#generatedNumbersArea {
+    background-color: #e4e4e4;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.numbers-row {
     display: flex;
     justify-content: center;
     gap: 10px;
+    margin: 10px 0;
 }
 
 .number-box {
@@ -26,15 +46,4 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.generate-btn {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 20px;
 }
