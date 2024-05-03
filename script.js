@@ -1,43 +1,44 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // 'generate-btn' ID에 맞춰 리스너 추가
+    let drawCount = 0;  // 추첨 횟수를 저장할 변수
+
     document.getElementById('generate-btn').addEventListener('click', function() {
         let lottoNumbers = new Set();
         while (lottoNumbers.size < 6) {
             lottoNumbers.add(Math.floor(Math.random() * 45) + 1);
         }
-        const currentNumbersContainer = document.getElementById('display-numbers'); // 현재 번호를 표시할 컨테이너
-        const pastNumbersContainer = document.getElementById('numbers-list'); // 과거 번호를 표시할 컨테이너
+        const pastNumbersContainer = document.getElementById('past-numbers');
+        const newNumbersDiv = document.createElement('div');
+        newNumbersDiv.className = 'numbers-row';
 
-        // 현재 번호를 새로운 div로 생성
-        const newCurrentNumbersDiv = document.createElement('div');
-        newCurrentNumbersDiv.className = 'numbers-row';
+        // 추첨 번호 세트 위에 추첨 순서 레이블 추가
+        drawCount++; // 추첨 횟수 증가
+        const drawLabel = document.createElement('div');
+        drawLabel.textContent = `${drawCount} 추첨`;
+        drawLabel.style.fontWeight = 'bold';
+        newNumbersDiv.appendChild(drawLabel);
+
         Array.from(lottoNumbers).forEach(num => {
             const numDiv = document.createElement('div');
             numDiv.className = 'number-box';
             numDiv.textContent = num;
             numDiv.style.backgroundColor = getColorForNumber(num);
-            newCurrentNumbersDiv.appendChild(numDiv);
+            newNumbersDiv.appendChild(numDiv);
         });
 
-        // 이전 번호를 "생성된 번호" 영역으로 이동
-        if (currentNumbersContainer.firstChild) {
-            pastNumbersContainer.insertBefore(newCurrentNumbersDiv, pastNumbersContainer.firstChild);
-        } else {
-            currentNumbersContainer.appendChild(newCurrentNumbersDiv);
-        }
+        pastNumbersContainer.insertBefore(newNumbersDiv, pastNumbersContainer.firstChild);
     });
 });
 
 function getColorForNumber(number) {
     if (number <= 10) {
-        return '#FBC400'; // Yellow
+        return '#FBC400';
     } else if (number <= 20) {
-        return '#69C8F2'; // Blue
+        return '#69C8F2';
     } else if (number <= 30) {
-        return '#FF7272'; // Red
+        return '#FF7272';
     } else if (number <= 40) {
-        return '#AAAAAA'; // Grey
+        return '#AAAAAA';
     } else {
-        return '#B0D840'; // Green
+        return '#B0D840';
     }
 }
