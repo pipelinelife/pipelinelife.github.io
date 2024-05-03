@@ -63,20 +63,25 @@ body, html {
 }
 
 /* 번호 공 스타일 */
-.number-ball {
+.number-box {
     display: inline-block; /* 인라인 블록 디스플레이 */
-    width: 40px; /* 너비 */
-    height: 40px; /* 높이 */
-    line-height: 40px; /* 라인 높이 */
-    border-radius: 50%; /* 원형 */
-    color: white; /* 글자 색상 */
+    width: 40px; /* 너비 설정 */
+    height: 40px; /* 높이 설정 */
+    line-height: 40px; /* 라인 높이 설정 */
+    border-radius: 50%; /* 원형 설정 */
+    color: white; /* 글자 색상 설정 */
     text-align: center; /* 텍스트 중앙 정렬 */
-    margin: 5px; /* 마진 */
+    margin: 5px; /* 마진 설정 */
+    background-color: #4CAF50; /* 기본 배경색 설정 */
 }
 
 /* 번호 범위별 배경색 설정 */
-.number-ball:nth-child(1) { background-color: #FBC400; }
-.number-ball:nth-child(2) { background-color: #69C8F2; }
-.number-ball:nth-child(3) { background-color: #FF7272; }
-.number-ball:nth-child(4) { background-color: #AAAAAA; }
-.number-ball:nth-child(5) { background-color: #B0D840; }
+.number-box {
+    background-color: #4CAF50; /* 기본색 */
+}
+
+.number-box[data-number='1-10'] { background-color: #FBC400; }
+.number-box[data-number='11-20'] { background-color: #69C8F2; }
+.number-box[data-number='21-30'] { background-color: #FF7272; }
+.number-box[data-number='31-40'] { background-color: #AAAAAA; }
+.number-box[data-number='41-45'] { background-color: #B0D840; }
