@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         drawLabel.textContent = `${drawCount} 추첨`;
         drawLabel.style.fontWeight = 'bold';
         drawLabel.style.display = 'inline-block';
-        drawLabel.style.width = '80px';
+        drawLabel.style.width = '70px';
         newCurrentNumbersDiv.appendChild(drawLabel);
 
         Array.from(lottoNumbers).forEach(num => {
@@ -41,6 +41,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 pastNumbersContainer.appendChild(child);
             });
         }
+
+     
+        
+        // 로또 번호를 화면에 표시하는 함수입니다.
+        function displayLottoNumbers(numbers) {
+            // HTML에서 로또 번호를 표시할 요소를 가져옵니다.
+            const container = document.getElementById('numbers-list');
+            // 기존에 표시된 내용을 초기화합니다.
+            container.innerHTML = '';
+
+            // 가져온 로또 번호 배열을 순회하면서 화면에 표시합니다.
+            numbers.forEach((week, index) => {
+                // 각 회차의 번호를 표시할 div 요소를 생성합니다.
+                const numberDiv = document.createElement('div');
+                numberDiv.className = 'week';
+                // 회차와 번호를 div 내부에 HTML로 설정합니다.
+                numberDiv.innerHTML = `<strong>${index + 1}회차:</strong> ${week.join(', ')}`;
+                // 생성한 div를 페이지에 추가합니다.
+                container.appendChild(numberDiv);
+            });
+        }
+
+    
+
+
+
+
     });
 });
 
