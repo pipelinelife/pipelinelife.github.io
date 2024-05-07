@@ -39,7 +39,7 @@ function displayLottoNumbers(lottoData) {
             const lottoRow = document.createElement('div');
             lottoRow.className = 'lotto-past-row';
             const drawNumber = document.createElement('span');
-            drawNumber.textContent = `${row[0]} 회차`; // 회차 정보 표시
+            drawNumber.textContent = `${row[0]} 회`; // 회차 정보 표시
             drawNumber.style.fontWeight = 'bold';
             drawNumber.style.display = 'inline-block';
             drawNumber.style.width = '70px';

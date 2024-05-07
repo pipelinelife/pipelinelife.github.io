@@ -1,75 +1,26 @@
-document.addEventListener('DOMContentLoaded', function() {
-    let drawCount = 0; // 추첨 횟수를 저장할 변수 초기화
-
-    document.getElementById('generate-btn').addEventListener('click', function() {
-        let lottoNumbers = new Set();
-        while (lottoNumbers.size < 6) {
-            lottoNumbers.add(Math.floor(Math.random() * 45) + 1);
-        }
-        const displayNumbersContainer = document.getElementById('display-numbers'); // 현재 번호를 표시할 컨테이너
-        const pastNumbersContainer = document.getElementById('numbers-list'); // 과거 번호를 표시할 컨테이너
-
-        // 현재 번호를 새로운 div로 생성
-        const newCurrentNumbersDiv = document.createElement('div');
-        newCurrentNumbersDiv.className = 'numbers-row';
-
-        // 추첨 횟수 증가
-        drawCount++;
-
-        // 추첨 횟수 레이블 추가
-        const drawLabel = document.createElement('div');
-        drawLabel.textContent = `${drawCount} 추첨`;
-        drawLabel.style.fontWeight = 'bold';
-        drawLabel.style.display = 'inline-block';
-        drawLabel.style.width = '70px';
-        newCurrentNumbersDiv.appendChild(drawLabel);
-
-        Array.from(lottoNumbers).forEach(num => {
-            const numDiv = document.createElement('div');
-            numDiv.className = 'number-box';
-            numDiv.textContent = num;
-            numDiv.style.backgroundColor = getColorForNumber(num);
-            newCurrentNumbersDiv.appendChild(numDiv);
-        });
-
-        // 새로운 번호를 현재 번호 영역에 표시
-        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
-
-        // 과거 번호를 "생성된 번호" 영역으로 이동
-        if (displayNumbersContainer.children.length > 1) { // 첫 번째 이외의 요소가 있으면 이동
-            Array.from(displayNumbersContainer.children).slice(1).forEach(child => {
-                pastNumbersContainer.appendChild(child);
-            });
-        }
-
-     
-        
-        // 로또 번호를 화면에 표시하는 함수입니다.
-        function displayLottoNumbers(numbers) {
-            // HTML에서 로또 번호를 표시할 요소를 가져옵니다.
-            const container = document.getElementById('numbers-list');
-            // 기존에 표시된 내용을 초기화합니다.
-            container.innerHTML = '';
-
-            // 가져온 로또 번호 배열을 순회하면서 화면에 표시합니다.
-            numbers.forEach((week, index) => {
-                // 각 회차의 번호를 표시할 div 요소를 생성합니다.
-                const numberDiv = document.createElement('div');
-                numberDiv.className = 'week';
-                // 회차와 번호를 div 내부에 HTML로 설정합니다.
-                numberDiv.innerHTML = `<strong>${index + 1}회차:</strong> ${week.join(', ')}`;
-                // 생성한 div를 페이지에 추가합니다.
-                container.appendChild(numberDiv);
-            });
-        }
-
+function fetchLotteryResults() {
+    // 요청할 URL 설정
+    const url = 'https://dhlottery.co.kr/gameResult.do?method=byWin&drwNo=1188'; // 변경 가능
     
+    // fetch API를 사용하여 데이터 요청
+    fetch(url)
+        .then(response => response.text()) // 응답을 텍스트로 변환
+        .then(data => {
+            const parser = new DOMParser(); // DOMParser 인스턴스 생성
+            const doc = parser.parseFromString(data, 'text/html'); // 응답 데이터를 HTML 문서로 파싱
+            
+            // 적절한 선택자로 필요한 데이터 추출
+            const resultSection = doc.querySelector('.your-result-selector'); // 수정 필요
+            document.getElementById('resultTable').innerHTML = resultSection.outerHTML; // 결과를 페이지에 삽입
+        })
+        .catch(err => { // 오류 처리
+            console.error('Error fetching data: ', err);
+            document.getElementById('resultTable').innerText = '결과를 불러오는데 실패했습니다.';
+        });
+}
 
-
-
-
-    });
-});
+// 페이지 로드 시 함수 실행
+window.onload = fetchLotteryResults;
 
 function getColorForNumber(number) {
     if (number <= 10) {

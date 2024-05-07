@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로또 번호 추출기</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid black; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+    </style>
 </head>
 <body>
     <div class="top-nav">
@@ -12,14 +18,8 @@
         <a href="past-lotto-numbers.html">역대 로또번호</a> |
         <a href="lotto-numbers-generator.html">로또번호 추출</a>
     </div>
-    <div id="lotto-generator">
-        <button id="generate-btn">번호 생성하기</button>
-        <div id="display-numbers"></div>
-    </div>
-    <div id="past-numbers">
-        <h2>생성된 번호</h2>
-        <div id="numbers-list"></div>
-    </div>
+    <div id="resultTable">결과를 불러오는 중입니다...</div>
+
     <script src="script.js"></script>
 </body>
 </html>
