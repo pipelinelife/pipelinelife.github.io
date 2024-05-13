@@ -14,7 +14,8 @@ function parseCSVToHTMLTable(csvData) {
         const cols = line.split(",");
         const tr = document.createElement("tr");
         const formattedAmount = parseInt(cols[1]/cols[2]).toLocaleString() + "원"; // 금액을 원화 형식으로 포맷
-        tr.innerHTML = `<td>${cols[0]}</td><td>${formattedAmount}</td><td>${cols[2]}</td>`;
+        const formattedpeople = parseInt(cols[2]).toLocaleString() + "명"; // 숫자를 사람 형식으로 포맷
+        tr.innerHTML = `<td>${cols[0]}</td><td>${formattedAmount}</td><td>${formattedpeople}</td>`;
         tbody.appendChild(tr);
     });
 }
