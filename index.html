@@ -5,21 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로또 번호 추출기</title>
     <link rel="stylesheet" href="styles.css">
-    <style>
-        body { font-family: Arial, sans-serif; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid black; padding: 8px; text-align: center; }
-        th { background-color: #f2f2f2; }
-    </style>
 </head>
 <body>
+    <header>
+        <h1>로또 번호 추출 사이트</h1>
+    </header>
     <div class="top-nav">
         <a href="index.html" class="active">홈</a> |
-        <a href="past-lotto-numbers.html">역대 로또번호</a> |
+        <a href="past-lotto-numbers.html" >역대 로또번호</a> |
         <a href="lotto-numbers-generator.html">로또번호 추출</a>
     </div>
-    <div id="resultTable">결과를 불러오는 중입니다...</div>
 
-    <script src="script.js"></script>
+<h2>이번주 당첨 결과</h2>
+<div id="latestLotto"></div>
+<table id="resultsTable">
+  <thead>
+    <tr>
+      <th>순위</th>
+      <th>1게임당 당첨금액</th>
+      <th>당첨게임 수</th>
+    </tr>
+  </thead>
+  <tbody>
+  </tbody>
+</table>
+
+<script src="script.js"></script>
 </body>
 </html>
