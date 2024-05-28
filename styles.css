@@ -1,16 +1,16 @@
 /* 상단 내비게이션 바 스타일 */
 .top-nav {
     background-color: #f4f4f4; /* 배경색 */
-    padding: 10px 0; /* 상하 패딩 */
+    padding: 5px 0; /* 상하 패딩 줄임 */
     text-align: center; /* 텍스트 중앙 정렬 */
-    margin-bottom: 20px; /* 아래쪽 여백 */
+    margin-bottom: 10px; /* 아래쪽 여백 줄임 */
 }
 
 /* 내비게이션 링크 스타일 */
 .top-nav a {
     padding: 8px 16px; /* 패딩 설정 */
+    text-decoration: none;
     color: #333; /* 글자 색상 */
-    text-decoration: none; /* 밑줄 없애기 */
     font-size: 16px; /* 글자 크기 */
 }
 
@@ -18,6 +18,15 @@
 .top-nav a.active, .top-nav a:hover {
     background-color: #ddd; /* 배경색 */
     color: black; /* 글자 색상 */
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 5px; /* 헤더와 네비게이션 바 사이의 간격 줄임 */
 }
 
 /* lotto-home-styles.css */
@@ -88,8 +97,6 @@ tr:nth-child(even) {
     background-color: #f2f2f2; /* 짝수 줄 배경색 */
 }
 
-
-
 /* 순위 열 스타일 */
 .rank-header {
     padding-top: 20px;
@@ -122,8 +129,6 @@ tr:nth-child(even) {
     color: white; /* 글자색 */
     text-align: center; /* 텍스트 중앙 정렬 */
 }
-
-
 
 /* 로또 번호 공 스타일 */
 .lotto-ball {
