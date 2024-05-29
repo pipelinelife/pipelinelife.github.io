@@ -43,7 +43,7 @@ function parseCSV(data) {
 
 // 주소를 Google Maps Geocoding API로 변환하는 함수
 function geocodeAddress(address, callback) {
-    const apiKey = '구글지도 api키 입력해야함'; // API 키를 입력
+    const apiKey = 'AIzaSyCU2m9gsjqn_6shLAJ1xjMEKX6X9xCX6FY'; // API 키를 입력
     const query = encodeURIComponent(address.trim());
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${apiKey}`;
 
