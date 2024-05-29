@@ -155,3 +155,26 @@ tr:nth-child(even) {
     font-size: 40px; /* 폰트 크기를 24px로 설정 */
     font-weight: bold; /* 굵은 글씨로 표시 */
 }
+
+/* 구분 칸의 줄바꿈 방지 및 너비 고정 */
+.category {
+    white-space: nowrap; /* 줄바꿈 방지 */
+    padding-left: 5px; /* 왼쪽 여백 줄이기 */
+    padding-right: 5px; /* 오른쪽 여백 줄이기 */
+}
+
+/* 상호명 셀의 글자 크기 줄임 및 여백 제거 */
+.name {
+    font-size: 14px; /* 글자 크기 줄임 */
+    padding-top: 0; /* 위쪽 여백 제거 */
+    padding-bottom: 0; /* 아래쪽 여백 제거 */
+}
+
+/* 소재지 셀의 글자 크기 줄임 */
+.address {
+    font-size: 12px; /* 글자 크기 줄임 */
+    padding-top: 0; /* 위쪽 여백 제거 */
+    padding-bottom: 0; /* 아래쪽 여백 제거 */
+    padding-left: 5px; /* 왼쪽 여백 줄이기 */
+    padding-right: 5px; /* 오른쪽 여백 줄이기 */
+}

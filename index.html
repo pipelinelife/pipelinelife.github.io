@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로또 번호 추출기</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css"> <!-- 스타일시트 연결 -->
 </head>
 <body>
     <header>
@@ -19,20 +19,33 @@
         <a href="lotto-winner-stores.html">1등 배출점</a>
     </div>
 
-<h2>이번주 당첨 결과</h2>
-<div id="latestLotto"></div>
-<table id="resultsTable">
-  <thead>
-    <tr>
-        <th class="rank-header">순위</th>
-        <th class="amount-header">1게임당 당첨금액</th>
-        <th class="games-won-header">당첨게임 수</th>
-    </tr>
-  </thead>
-  <tbody>
-  </tbody>
-</table>
+    <h2>이번주 당첨 결과</h2>
+    <div id="latestLotto"></div> <!-- 최신 로또 결과를 표시할 div 요소 -->
+    <table id="resultsTable">
+        <thead>
+            <tr>
+                <th class="rank-header">순위</th>
+                <th class="amount-header">1게임당 당첨금액</th>
+                <th class="games-won-header">당첨게임 수</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    
+    <h2>1등 배출점</h2>
+    <table id="winnerStoresTable">
+        <thead>
+            <tr>
+                <th class="category">구분</th>
+                <th>상호명</th>
+                <th>소재지</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 
-<script src="script.js"></script>
+    <script src="script.js"></script> <!-- 스크립트 파일 연결 -->
 </body>
 </html>
