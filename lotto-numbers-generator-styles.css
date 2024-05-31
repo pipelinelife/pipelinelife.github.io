@@ -91,7 +91,6 @@ header {
 .number-box[data-number='31-40'] { background-color: #AAAAAA; }
 .number-box[data-number='41-45'] { background-color: #B0D840; }
 
-
 /* 로또 결과 컨테이너의 기본 스타일 설정 */
 .lotto-past-result {
     font-family: Arial, sans-serif; /* 폰트 스타일 지정 */
@@ -129,11 +128,6 @@ header {
 .lotto-past-bonus {
     background-color: #FF9800; /* 배경색 오렌지색 설정 */
 }
-
-
-
-
-
 
 /* 조건 폼 스타일 */
 #condition-form {
@@ -184,4 +178,45 @@ header {
     display: inline-block; /* 인라인 블록 */
 }
 
+/* 모바일 화면에서 조건 설정 스타일 조정 */
+@media (max-width: 600px) {
+    #condition-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
 
+    #condition-form .left, #condition-form .right {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    #condition-form div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    #condition-form label {
+        width: auto;
+        text-align: left;
+    }
+
+    #condition-form input, #condition-form select {
+        width: 35%;
+        max-width: 150px;
+        text-align: center;
+    }
+
+    #generate-btn {
+        width: 100%;
+        max-width: 300px;
+        margin-top: 20px;
+    }
+}
