@@ -131,3 +131,57 @@ header {
 }
 
 
+
+
+
+
+/* 조건 폼 스타일 */
+#condition-form {
+    margin-bottom: 20px; /* 하단 여백 */
+    padding: 20px; /* 패딩 */
+    background-color: #ffffff; /* 배경색 */
+    display: flex; /* 플렉스박스 사용 */
+    flex-wrap: wrap; /* 여러 줄로 나누어 표시 */
+    justify-content: center; /* 중앙 정렬 */
+    align-items: center; /* 세로축 중앙 정렬 */
+    max-width: 700px; /* 최대 너비 설정 */
+    margin-left: auto; /* 중앙 정렬 */
+    margin-right: auto; /* 중앙 정렬 */
+}
+
+#condition-form h3 {
+    width: 100%; /* 제목은 전체 너비 사용 */
+    text-align: center; /* 중앙 정렬 */
+    margin-top: 0; /* 상단 여백 제거 */
+}
+
+#condition-form .left, #condition-form .right {
+    display: flex;
+    flex-direction: column;
+    width: 45%; /* 너비 줄임 */
+}
+
+#condition-form .right {
+    margin-left: 1%; /* 오른쪽 마진 조정 */
+}
+
+#condition-form div {
+    margin: 2px 0; /* 각 조건 입력란 여백 줄임 */
+    display: flex; /* 플렉스박스 사용하여 라벨과 입력란 배치 */
+    align-items: center; /* 세로축 중앙 정렬 */
+}
+
+#condition-form label {
+    width: 140px; /* 라벨 너비 */
+    margin-right: 5px; /* 라벨과 입력란 사이 여백 */
+}
+
+#condition-form input, #condition-form select {
+    width: 100px; /* 입력란 너비 설정 */
+    padding: 5px; /* 패딩 */
+    border: 1px solid #ccc; /* 테두리 */
+    border-radius: 3px; /* 모서리 둥글게 */
+    display: inline-block; /* 인라인 블록 */
+}
+
+
