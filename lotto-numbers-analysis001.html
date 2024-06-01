@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로또 번호 분석</title>
+    <link rel="stylesheet" href="lotto-numbers-analysis001-styles.css">
+</head>
+<body>
+    <header>
+        <h1>로또 번호 분석</h1>
+        <nav class="top-nav">
+            <a href="index.html">홈</a> |
+            <a href="lotto-numbers-generator.html">로또번호 추출</a>
+        </nav>
+    </header>
+    <div class="top-nav">
+        <a href="past-lotto-numbers.html">역대 로또번호</a> |
+        <a href="lotto-numbers-analysis.html" class="active">번호 분석</a> |
+        <a href="lotto-winner-stores.html">1등 배출점</a>
+    </div>
+    <div class="mid-nav">
+        <a href="lotto-numbers-analysis.html">전체</a> |
+        <a href="lotto-numbers-analysis100.html">마지막 100</a> |
+        <a href="lotto-numbers-analysis020.html">마지막 20</a> |
+        <a href="lotto-numbers-analysis005.html">마지막 5</a> |
+        <a href="lotto-numbers-analysis001.html" class="active">마지막 1</a>
+    </div>
+
+    <main id="analysis-results">
+        <div class="analysis-container">
+            <div class="left-panel">
+                <h2>번호별 출현 횟수의 합</h2>
+                <div id="number-counts"></div>
+            </div>
+            <div class="right-panel">
+                <h2>회차별 홀짝 비율</h2>
+                <div id="odd-even-ratios"></div>
+                <h2>회차별 고저 비율</h2>
+                <div id="high-low-ratios"></div>
+                <h2>회차별 번호의 합</h2>
+                <div id="sum-ranges"></div>
+            </div>
+        </div>
+    </main>
+    <script src="lotto-numbers-analysis001-script.js"></script>
+</body>
+</html>

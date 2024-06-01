@@ -17,12 +17,13 @@
     <header>
         <h1>로또 번호 추출기</h1>
         <nav class="top-nav">
-            <a href="index.html">홈</a>
+            <a href="index.html">홈</a> |
+            <a href="lotto-numbers-generator.html" class="active">로또번호 추출</a>
         </nav>
     </header>
     <div class="top-nav">
         <a href="past-lotto-numbers.html">역대 로또번호</a> |
-        <a href="lotto-numbers-generator.html" class="active">로또번호 추출</a> |
+        <a href="lotto-numbers-analysis.html">번호 분석</a> |
         <a href="lotto-winner-stores.html">1등 배출점</a>
     </div>
     <!-- 조건 입력 폼 추가 -->
@@ -34,19 +35,19 @@
                 <input type="number" id="frequency-all" value="3" placeholder="전체" />
             </div>
             <div>
-                <label for="frequency-100">출현빈도 100단위:</label>
+                <label for="frequency-100">최근 100단위:</label>
                 <input type="number" id="frequency-100" value="0.5" placeholder="100단위" />
             </div>
             <div>
-                <label for="frequency-20">출현빈도 20단위:</label>
+                <label for="frequency-20">최근 20단위:</label>
                 <input type="number" id="frequency-20" value="0.3" placeholder="20단위" />
             </div>
             <div>
-                <label for="frequency-5">출현빈도 5단위:</label>
+                <label for="frequency-5">최근 5단위:</label>
                 <input type="number" id="frequency-5" value="0.1" placeholder="5단위" />
             </div>
             <div>
-                <label for="frequency-1">출현빈도 1단위:</label>
+                <label for="frequency-1">최근 1단위:</label>
                 <input type="number" id="frequency-1" value="-0.3" placeholder="1단위" />
             </div>
         </div>

@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let consecutiveLimit = parseInt(document.getElementById('consecutive').value);
         let rangeLimit = parseInt(document.getElementById('range').value);
 
+
+        
         // 로또 번호 생성 함수
         function generateLottoNumbers() {
             let lottoNumbers = new Set();
@@ -148,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // 정보 표시
         const infoDiv = document.createElement('div');
         infoDiv.className = 'info-row';
-        infoDiv.textContent = `홀짝 비율: ${oddCount} : ${evenCount}, 고저 비율: ${lowCount} : ${highCount}, 총합: ${sum}`;
+        infoDiv.textContent = `홀짝 비율: ${oddCount} : ${evenCount}, 고저 비율: ${highCount} : ${lowCount}, 총합: ${sum}`;
         displayNumbersContainer.insertBefore(infoDiv, displayNumbersContainer.firstChild);
         displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
 

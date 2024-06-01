@@ -1,0 +1,144 @@
+/* 상단 내비게이션 바 스타일 */
+.top-nav {
+    background-color: #f4f4f4; /* 배경색 */
+    padding: 5px 0; /* 상하 패딩 줄임 */
+    text-align: center; /* 텍스트 중앙 정렬 */
+    margin-bottom: 10px; /* 아래쪽 여백 줄임 */
+}
+
+/* 내비게이션 링크 스타일 */
+.top-nav a {
+    padding: 8px 16px; /* 패딩 설정 */
+    text-decoration: none;
+    color: #333; /* 글자 색상 */
+    font-size: 16px; /* 글자 크기 */
+}
+
+/* 활성화 또는 호버 상태의 링크 스타일 */
+.top-nav a.active, .top-nav a:hover {
+    background-color: #ddd; /* 배경색 */
+    color: black; /* 글자 색상 */
+}
+
+header {
+    text-align: center;
+    margin-bottom: 5px; /* 헤더와 네비게이션 바 사이의 간격 줄임 */
+}
+
+/* 중단 내비게이션 바 스타일 */
+.mid-nav {
+    background-color: #f4f4f4; /* 배경색 */
+    padding: 2px 0; /* 상하 패딩 줄임 */
+    text-align: center; /* 텍스트 중앙 정렬 */
+    margin-bottom: 0px; /* 아래쪽 여백 줄임 */
+}
+
+/* 중단 내비게이션 링크 스타일 */
+.mid-nav a {
+    padding: 4px 1px; /* 패딩 설정 */
+    text-decoration: none;
+    color: #333; /* 글자 색상 */
+    font-size: 16px; /* 글자 크기 */
+}
+
+/* 중단 네비게이션바 활성화 또는 호버 상태의 링크 스타일 */
+.mid-nav a.active, .mid-nav a:hover {
+    background-color: #ddd; /* 배경색 */
+    color: black; /* 글자 색상 */
+}
+
+/* lotto-home-styles.css */
+/* 기본 스타일 및 텍스트, 배경 색상 조정 */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif; /* 폰트 설정 */
+    background-color: #f4f4f4; /* 배경색 설정 */
+    text-align: center; /* 텍스트 중앙 정렬 */
+}
+
+:root {
+    --col1-width: 30%; /* 번호, 홀짝 비율, 고저 비율, 번호의 합 범위 열 너비 */
+    --col2-width: 50%; /* 출현 횟수 열 너비 */
+    --col3-width: 20%; /* 출현 비율 열 너비 */
+}
+
+.analysis-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.left-panel, .right-panel {
+    margin: 10px;
+}
+
+.left-panel {
+    width: 60%;
+}
+
+.right-panel {
+    width: 30%;
+}
+
+table {
+    width: 100%; /* 테이블 너비를 기존의 "번호별 출현 횟수의 합"과 동일하게 설정 */
+    border-collapse: collapse;
+    margin: 20px auto; /* 가운데 정렬 */
+}
+
+th, td {
+    border: 1px solid #dddddd;
+    text-align: center;
+    padding: 4px;
+    word-break: break-all;
+    white-space: nowrap; /* 내용이 줄 바뀜 없이 한 줄에 표시되도록 설정 */
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+th.count-column, td.count-column {
+    width: var(--col2-width); /* 막대 그래프가 있는 칸의 너비 설정 */
+}
+
+th.last-child, td.last-child {
+    width: var(--col3-width); /* 출현 비율 칸의 너비 설정 */
+}
+
+th.first-child, td.first-child {
+    width: var(--col1-width); /* 번호, 홀짝 비율, 고저 비율, 번호의 합 범위 열 너비 설정 */
+}
+
+.bar {
+    display: inline-block;
+    height: 20px;
+    background-color: orange;
+}
+
+.bar-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+table.analysis-table {
+    table-layout: fixed; /* 테이블 너비 고정 */
+}
+
+/* 모바일 화면에서 테이블을 스크롤 가능하도록 설정 */
+@media (max-width: 768px) {
+    .analysis-table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* iOS에서 부드러운 스크롤 */
+    }
+
+    table.analysis-table {
+        width: 400px; /* 모바일 화면에서 테이블의 너비를 고정 */
+    }
+
+    .left-panel, .right-panel {
+        width: 100%;
+    }
+}
