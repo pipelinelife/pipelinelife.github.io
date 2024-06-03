@@ -12,7 +12,7 @@ function parseCSV(data, hasCoordinates = false) {
 
     rows.forEach((row, index) => {
         const columns = row.split(',');
-        if (hasCoordinates && columns.length !== 4) {
+        if (hasCoordinates && columns.length !== 5) {
             console.error(`Invalid data at line ${index + 2}: ${row}`);
             return;
         }
@@ -22,7 +22,7 @@ function parseCSV(data, hasCoordinates = false) {
         }
 
         if (hasCoordinates) {
-            const [name, addr, lon, lat] = columns.map(column => column.trim());
+            const [name, addr, geocoding, lon, lat] = columns.map(column => column.trim());
             if (!results[name]) {
                 results[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
             }
@@ -72,7 +72,8 @@ async function initMap(position) {
 
                 const popupContent = `
                     <b>${store.name}</b><br>
-                    ${store.details.map(detail => `${detail.round}회(${detail.category})`).join('<br>')}
+                    ${store.round}회 (${store.category})<br>
+                    ${store.address}
                 `;
                 marker.bindPopup(popupContent);
             } else {
