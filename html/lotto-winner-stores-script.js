@@ -5,6 +5,13 @@ async function fetchData() {
     return data;
 }
 
+// 주소 좌표 데이터를 fetch하는 함수
+async function fetchAddrData() {
+    const response = await fetch('lottowinnerstores_addr.csv');
+    const data = await response.text();
+    return data;
+}
+
 // CSV 데이터를 파싱하는 함수
 function parseCSV(data) {
     const rows = data.split('\n').slice(1);
@@ -38,13 +45,6 @@ function parseCSV(data) {
     });
 
     return results;
-}
-
-// 주소 좌표 데이터를 fetch하는 함수
-async function fetchAddrData() {
-    const response = await fetch('lottowinnerstores_addr.csv');
-    const data = await response.text();
-    return data;
 }
 
 // 주소 좌표 데이터를 파싱하는 함수
