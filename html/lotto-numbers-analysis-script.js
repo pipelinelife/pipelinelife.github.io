@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const oddEvenRatiosContainer = document.getElementById('odd-even-ratios');
     const highLowRatiosContainer = document.getElementById('high-low-ratios');
     const sumRangesContainer = document.getElementById('sum-ranges');
-    const csvUrl = 'https://raw.githubusercontent.com/ablanksheet/lottonumber/main/lottoRes.csv'; // GitHub Raw URL
+    const csvUrl = '../CSV/lottoRes.csv'; // GitHub Raw URL
 
     fetch(csvUrl)
         .then(response => response.text())
