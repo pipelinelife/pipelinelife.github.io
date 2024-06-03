@@ -1,7 +1,7 @@
 // 문서가 로드되면 함수 실행
 document.addEventListener('DOMContentLoaded', function() {
     // CSV 파일의 URL
-    const csvUrl = 'https://raw.githubusercontent.com/ablanksheet/lottonumber/main/lottoRes.csv';
+    const csvUrl = '../CSV/lottoRes.csv';
     // CSV 파일을 가져오기
     fetch(csvUrl)
         .then(response => response.text()) // 응답을 텍스트로 변환
