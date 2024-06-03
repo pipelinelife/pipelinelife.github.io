@@ -14,10 +14,12 @@ function parseCSV(data, hasCoordinates = false) {
         const columns = row.split(',');
         if (hasCoordinates && columns.length !== 5) {
             console.error(`Invalid data at line ${index + 2}: ${row}`);
+            console.log('Expected 5 columns, but got:', columns.length, columns);
             return;
         }
         if (!hasCoordinates && columns.length !== 4) {
             console.error(`Invalid data at line ${index + 2}: ${row}`);
+            console.log('Expected 4 columns, but got:', columns.length, columns);
             return;
         }
 
@@ -72,12 +74,12 @@ async function initMap(position) {
 
                 const popupContent = `
                     <b>${store.name}</b><br>
-                    ${store.round}회 (${store.category})<br>
-                    ${store.address}
+                    ${store.details.map(detail => `${detail.round}회(${detail.category})`).join('<br>')}
                 `;
                 marker.bindPopup(popupContent);
             } else {
                 console.error(`No coordinates found for store: ${store.name}`);
+                console.log('Parsed Address Data:', parsedAddrData);
             }
         });
     } catch (error) {
