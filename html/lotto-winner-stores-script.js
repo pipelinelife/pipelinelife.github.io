@@ -21,8 +21,8 @@ function parseCSV(data, hasCoordinates = false) {
             return;
         }
 
-        const [name, addr, lon, lat] = columns.map(column => column.trim());
         if (hasCoordinates) {
+            const [name, addr, lon, lat] = columns.map(column => column.trim());
             if (!results[name]) {
                 results[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
             }
