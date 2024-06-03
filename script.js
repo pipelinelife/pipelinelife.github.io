@@ -38,7 +38,7 @@ function displayLatestLotto(csvData) {
 
     // 최신 회차 번호 저장
     const latestRound = latest[0];
-    fetchCSVData('https://raw.githubusercontent.com/ablanksheet/lottonumber/main/lottowinnerstores.csv', data => displayWinnerStores(data, latestRound));
+    fetchCSVData('../CSV/lottowinnerstores.csv', data => displayWinnerStores(data, latestRound));
 }
 
 // 번호와 범위에 따라 클래스를 설정하는 함수
@@ -76,6 +76,6 @@ function displayWinnerStores(csvData, latestRound) {
 
 // 문서 로딩 완료 후 함수 호출
 document.addEventListener('DOMContentLoaded', function() {
-    fetchCSVData('https://raw.githubusercontent.com/ablanksheet/lottonumber/main/lastlotto_results.csv', parseCSVToHTMLTable); // 로또 결과 테이블 생성
-    fetchCSVData('https://raw.githubusercontent.com/ablanksheet/lottonumber/main/lottoRes.csv', displayLatestLotto); // 최신 로또 결과 표시
+    fetchCSVData('../CSV/lastlotto_results.csv', parseCSVToHTMLTable); // 로또 결과 테이블 생성
+    fetchCSVData('../CSV/lottoRes.csv', displayLatestLotto); // 최신 로또 결과 표시
 });
