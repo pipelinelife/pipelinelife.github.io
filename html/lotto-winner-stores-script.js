@@ -71,6 +71,10 @@ async function initMap(position) {
             }
         });
 
+        // 매칭되는 데이터가 제대로 있는지 확인하기 위한 디버깅 로그 추가
+        console.log('Parsed Address Data:', parsedAddrData);
+        console.log('Unique Stores:', uniqueStores);
+
         for (const store of Object.values(uniqueStores)) {
             const addrInfo = parsedAddrData[store.name];
             if (addrInfo) {
