@@ -60,22 +60,11 @@ async function initMap(position) {
         const parsedAddrData = parseCSV(addrData, true);
         const allStores = Object.values(parsedStoreData).flat();
 
-        const uniqueStores = {};
-
-        allStores.forEach(store => {
-            const key = `${store.name}-${store.address}`;
-            if (!uniqueStores[key]) {
-                uniqueStores[key] = { ...store, details: [{ round: store.round, category: store.category }] };
-            } else {
-                uniqueStores[key].details.push({ round: store.round, category: store.category });
-            }
-        });
-
         // 매칭되는 데이터가 제대로 있는지 확인하기 위한 디버깅 로그 추가
         console.log('Parsed Address Data:', parsedAddrData);
-        console.log('Unique Stores:', uniqueStores);
+        console.log('All Stores:', allStores);
 
-        for (const store of Object.values(uniqueStores)) {
+        allStores.forEach(store => {
             const addrInfo = parsedAddrData[store.name];
             if (addrInfo) {
                 const coords = [addrInfo.lat, addrInfo.lon];
@@ -89,7 +78,7 @@ async function initMap(position) {
             } else {
                 console.error(`No coordinates found for store: ${store.name}`);
             }
-        }
+        });
     } catch (error) {
         console.error('Error fetching or processing data:', error);
     }
