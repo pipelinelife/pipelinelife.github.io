@@ -1,6 +1,6 @@
 // 데이터를 fetch하는 함수
-async function fetchData() {
-    const response = await fetch('../CSV/lottowinnerstores.csv');
+async function fetchData(url) {
+    const response = await fetch(url);
     const data = await response.text();
     return data;
 }
@@ -11,14 +11,7 @@ function parseCSV(data) {
     const results = {};
 
     rows.forEach((row, index) => {
-        // 쉼표와 쌍따옴표를 고려한 정규 표현식으로 CSV 파싱
-        const regex = /"([^"]*)"|([^,]+)/g;
-        const columns = [];
-        let match;
-        while ((match = regex.exec(row)) !== null) {
-            columns.push(match[1] || match[2]);
-        }
-
+        const columns = row.split(',');
         if (columns.length !== 4) {
             console.error(`Invalid data at line ${index + 2}: ${row}`);
             return;
@@ -41,9 +34,29 @@ function parseCSV(data) {
     return results;
 }
 
-// 비동기적으로 지연을 추가하는 함수
-function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+// 주소 데이터를 파싱하는 함수 (주소 파일 전용)
+function parseAddrCSV(data) {
+    const rows = data.split('\n').slice(1);
+    const results = {};
+
+    rows.forEach((row, index) => {
+        const columns = row.split(',');
+        if (columns.length !== 3) {
+            console.error(`Invalid data at line ${index + 2}: ${row}`);
+            return;
+        }
+
+        const [name, lon, lat] = columns.map(column => column.trim());
+
+        if (!lon || !lat || isNaN(lon) || isNaN(lat)) {
+            console.error(`Invalid coordinates at line ${index + 2}: ${row}`);
+            return;
+        }
+
+        results[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
+    });
+
+    return results;
 }
 
 // Leaflet 지도를 초기화하는 함수
@@ -57,55 +70,42 @@ async function initMap(position) {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    fetchData().then(async data => {
-        const parsedData = parseCSV(data);
-        const allStores = Object.values(parsedData).flat();
+    // 주소 데이터와 상호명 데이터를 fetch
+    const [storeData, addrData] = await Promise.all([
+        fetchData('../CSV/lottowinnerstores.csv'),
+        fetchData('../CSV/lottowinnerstores_addr.csv')
+    ]);
 
-        const uniqueStores = {};
+    const parsedStoreData = parseCSV(storeData);
+    const parsedAddrData = parseAddrCSV(addrData);
+    const allStores = Object.values(parsedStoreData).flat();
 
-        allStores.forEach(store => {
-            const key = `${store.name}-${store.address}`;
-            if (!uniqueStores[key]) {
-                uniqueStores[key] = { ...store, details: [{ round: store.round, category: store.category }] };
-            } else {
-                uniqueStores[key].details.push({ round: store.round, category: store.category });
-            }
-        });
+    const uniqueStores = {};
 
-        for (const store of Object.values(uniqueStores)) {
-            console.log(`Geocoding address: ${store.address}`);
-            await delay(50); // 50ms 지연 추가
-            geocodeAddress(store.address, result => {
-                if (result) {
-                    const coords = [result.lat, result.lng];
-                    const marker = L.marker(coords).addTo(map);
-
-                    const popupContent = `
-                        <b>${store.name}</b><br>
-                        ${store.details.map(detail => `${detail.round}회(${detail.category})`).join('<br>')}
-                    `;
-                    marker.bindPopup(popupContent);
-                }
-            });
+    allStores.forEach(store => {
+        const key = `${store.name}-${store.address}`;
+        if (!uniqueStores[key]) {
+            uniqueStores[key] = { ...store, details: [{ round: store.round, category: store.category }] };
+        } else {
+            uniqueStores[key].details.push({ round: store.round, category: store.category });
         }
-    }).catch(error => console.error('Error fetching data:', error));
-}
+    });
 
-// 주소를 OpenStreetMap을 통해 지오코딩하는 함수
-function geocodeAddress(address, callback) {
-    const query = encodeURIComponent(address.trim());
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}`;
+    for (const store of Object.values(uniqueStores)) {
+        const addrInfo = parsedAddrData[store.name];
+        if (addrInfo) {
+            const coords = [addrInfo.lat, addrInfo.lon];
+            const marker = L.marker(coords).addTo(map);
 
-    fetch(url)
-        .then(response => response.json())
-        .then(results => {
-            if (results.length > 0) {
-                callback(results[0]);
-            } else {
-                console.error(`No results found for address: ${address}`);
-            }
-        })
-        .catch(error => console.error('Error fetching geocode:', error));
+            const popupContent = `
+                <b>${store.name}</b><br>
+                ${store.details.map(detail => `${detail.round}회(${detail.category})`).join('<br>')}
+            `;
+            marker.bindPopup(popupContent);
+        } else {
+            console.error(`No coordinates found for store: ${store.name}`);
+        }
+    }
 }
 
 // window.onload 이벤트 핸들러
@@ -117,7 +117,7 @@ window.onload = function() {
         initMap({ coords: { latitude: 37.5665, longitude: 126.9780 } });
     });
 
-    fetchData().then(data => {
+    fetchData('../CSV/lottowinnerstores.csv').then(data => {
         const parsedData = parseCSV(data);
         const rounds = Object.keys(parsedData).sort((a, b) => b - a);
         const roundSelect = document.getElementById('round-select');
