@@ -6,54 +6,33 @@ async function fetchData(url) {
 }
 
 // CSV 데이터를 파싱하는 함수
-function parseCSV(data) {
+function parseCSV(data, hasCoordinates = false) {
     const rows = data.split('\n').slice(1);
     const results = {};
 
     rows.forEach((row, index) => {
         const columns = row.split(',');
-        if (columns.length !== 4) {
+        if (hasCoordinates && columns.length !== 4) {
+            console.error(`Invalid data at line ${index + 2}: ${row}`);
+            return;
+        }
+        if (!hasCoordinates && columns.length !== 4) {
             console.error(`Invalid data at line ${index + 2}: ${row}`);
             return;
         }
 
-        const [round, name, category, address] = columns.map(column => column.trim());
-
-        if (!address || !address.trim()) {
-            console.error(`Invalid address at line ${index + 2}: ${row}`);
-            return;
+        const [name, addr, lon, lat] = columns.map(column => column.trim());
+        if (hasCoordinates) {
+            if (!results[name]) {
+                results[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
+            }
+        } else {
+            const [round, name, category, address] = columns.map(column => column.trim());
+            if (!results[round]) {
+                results[round] = [];
+            }
+            results[round].push({ round, name, category, address });
         }
-
-        if (!results[round]) {
-            results[round] = [];
-        }
-
-        results[round].push({ round, name, category, address });
-    });
-
-    return results;
-}
-
-// 주소 데이터를 파싱하는 함수 (주소 파일 전용)
-function parseAddrCSV(data) {
-    const rows = data.split('\n').slice(1);
-    const results = {};
-
-    rows.forEach((row, index) => {
-        const columns = row.split(',');
-        if (columns.length !== 3) {
-            console.error(`Invalid data at line ${index + 2}: ${row}`);
-            return;
-        }
-
-        const [name, lon, lat] = columns.map(column => column.trim());
-
-        if (!lon || !lat || isNaN(lon) || isNaN(lat)) {
-            console.error(`Invalid coordinates at line ${index + 2}: ${row}`);
-            return;
-        }
-
-        results[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
     });
 
     return results;
@@ -78,7 +57,7 @@ async function initMap(position) {
         ]);
 
         const parsedStoreData = parseCSV(storeData);
-        const parsedAddrData = parseAddrCSV(addrData);
+        const parsedAddrData = parseCSV(addrData, true);
         const allStores = Object.values(parsedStoreData).flat();
 
         const uniqueStores = {};
