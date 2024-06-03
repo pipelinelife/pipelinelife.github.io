@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로또 번호 추출기</title>
+    <link rel="stylesheet" href="lotto-winner-stores-styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+</head>
+<body>
+    <header>
+        <h1>로또 번호 추출기</h1>
+        <nav class="top-nav">
+            <a href="../index.html">홈</a> |
+            <a href="lotto-numbers-generator.html">로또번호 추출</a>
+        </nav>
+    </header>
+    <div class="top-nav">
+        <a href="past-lotto-numbers.html">역대 로또번호</a> |
+        <a href="lotto-numbers-analysis.html">번호 분석</a> |
+        <a href="lotto-winner-stores.html" class="active">1등 배출점</a>
+    </div>
+    <h2>1등 배출점</h2>
+    <div id="map" style="height: 350px;"></div>
+    <p class="notice-1">
+        본 지도는 262회차부터 최신회차까지의 1등 배출점을 마킹하고있습니다.<br>
+    </p> 
+    <p class="notice-2">   
+        *비용 문제로 일부 기능 정지합니다.
+    </p>
+    <div class="round-selection">
+        <label for="round-select">회차 바로가기:</label>
+        <select id="round-select"></select>
+        <button id="round-go">조회</button>
+    </div>
+
+    <h3 id="round-title"></h3>
+
+    <div id="lotto-winner-container"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="lotto-winner-stores-script.js"></script>
+</body>
+</html>

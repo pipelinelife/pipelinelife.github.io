@@ -1,0 +1,110 @@
+/* 전체 페이지 기본 설정 */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif; /* 폰트 설정 */
+    background-color: #f4f4f4; /* 배경색 설정 */
+    text-align: center; /* 텍스트 중앙 정렬 */
+}
+
+/* 상단 내비게이션 바 스타일 */
+.top-nav {
+    background-color: #f4f4f4; /* 배경색 */
+    padding: 5px 0; /* 상하 패딩 줄임 */
+    text-align: center; /* 텍스트 중앙 정렬 */
+    margin-bottom: 10px; /* 아래쪽 여백 줄임 */
+}
+
+/* 내비게이션 링크 스타일 */
+.top-nav a {
+    padding: 8px 16px; /* 패딩 설정 */
+    text-decoration: none;
+    color: #333; /* 글자 색상 */
+    font-size: 16px; /* 글자 크기 */
+}
+
+/* 활성화 또는 호버 상태의 링크 스타일 */
+.top-nav a.active, .top-nav a:hover {
+    background-color: #ddd; /* 배경색 */
+    color: black; /* 글자 색상 */
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 5px; /* 헤더와 네비게이션 바 사이의 간격 줄임 */
+}
+
+/* 로또 번호 생성기 섹션 스타일 */
+#lotto-generator {
+    text-align: center; /* 텍스트 중앙 정렬 */
+    padding: 20px; /* 패딩 설정 */
+}
+
+/* 번호 생성 버튼 스타일 */
+#generate-btn {
+    background-color: #4CAF50; /* 배경 색 */
+    color: white; /* 글자 색 */
+    border: none; /* 테두리 없음 */
+    padding: 10px 20px; /* 패딩 설정 */
+    border-radius: 5px; /* 모서리 둥글게 */
+    cursor: pointer; /* 커서 포인터 모양 */
+    font-size: 18px; /* 글자 크기 */
+    display: block; /* 블록 디스플레이 */
+    width: 200px; /* 너비 설정 */
+    margin: auto; /* 자동 마진으로 중앙 정렬 */
+}
+
+/* 생성된 번호 표시 영역 */
+#display-numbers {
+    margin-top: 20px; /* 상단 여백 */
+}
+
+/* 과거 번호 리스트 섹션 스타일 */
+#past-numbers {
+    margin-top: 20px; /* 상단 여백 */
+    background-color: white; /* 배경색 */
+    padding: 15px; /* 패딩 */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 박스 그림자 */
+}
+
+/* 번호 범위별 배경색 설정 */
+.lotto-past-number[data-number='1-10'] { background-color: #FBC400; }
+.lotto-past-number[data-number='11-20'] { background-color: #69C8F2; }
+.lotto-past-number[data-number='21-30'] { background-color: #FF7272; }
+.lotto-past-number[data-number='31-40'] { background-color: #AAAAAA; }
+.lotto-past-number[data-number='41-45'] { background-color: #B0D840; }
+
+
+/* 로또 번호 행 스타일 설정 */
+.lotto-past-row {
+    margin-bottom: 5px; /* 행 간의 간격을 줄임 */
+    background: #F4F4F4; /* 배경색 설정 */
+    padding: 8px; /* 행 주위의 패딩을 감소 */
+    border-radius: 10px; /* 모서리를 둥글게 처리 */
+    display: flex; /* Flexbox 레이아웃 사용 */
+    justify-content: center; /* 항목들을 중앙 정렬 */
+    align-items: center; /* 항목들을 수직 중앙 정렬 */
+}
+
+/* 로또 번호와 보너스 번호의 스타일 */
+.lotto-past-number, .lotto-past-bonus {
+    width: 40px; /* 너비 설정 */
+    height: 40px; /* 높이 설정 */
+    display: flex; /* Flexbox 레이아웃 적용 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    border-radius: 50%; /* 원형으로 디자인 */
+    color: white; /* 텍스트 색상을 흰색으로 설정 */
+    font-weight: bold; /* 텍스트를 굵게 */
+    margin: 0 5px; /* 좌우 간격 설정 */
+}
+
+/* 일반 로또 번호 스타일 */
+.lotto-past-number {    background-color: #4CAF50; /* 배경색을 초록색으로 설정 */}
+
+/* 보너스 번호 스타일 */
+.lotto-past-bonus {    background-color: #FF9800; /* 배경색을 오렌지색으로 설정 */}
