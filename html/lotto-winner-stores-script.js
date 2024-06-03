@@ -1,6 +1,6 @@
 // 데이터를 fetch하는 함수
-async function fetchData(url) {
-    const response = await fetch(url);
+async function fetchData() {
+    const response = await fetch('lottowinnerstores.csv');
     const data = await response.text();
     return data;
 }
@@ -11,7 +11,13 @@ function parseCSV(data) {
     const results = {};
 
     rows.forEach((row, index) => {
-        const columns = row.split(',');
+        const regex = /"([^"]*)"|([^,]+)/g;
+        const columns = [];
+        let match;
+        while ((match = regex.exec(row)) !== null) {
+            columns.push(match[1] || match[2]);
+        }
+
         if (columns.length !== 4) {
             console.error(`Invalid data at line ${index + 2}: ${row}`);
             return;
@@ -34,29 +40,24 @@ function parseCSV(data) {
     return results;
 }
 
-// 주소 데이터를 파싱하는 함수 (주소 파일 전용)
+// 주소 좌표 데이터를 fetch하는 함수
+async function fetchAddrData() {
+    const response = await fetch('lottowinnerstores_addr.csv');
+    const data = await response.text();
+    return data;
+}
+
+// 주소 좌표 데이터를 파싱하는 함수
 function parseAddrCSV(data) {
     const rows = data.split('\n').slice(1);
-    const results = {};
+    const addrData = {};
 
-    rows.forEach((row, index) => {
-        const columns = row.split(',');
-        if (columns.length !== 3) {
-            console.error(`Invalid data at line ${index + 2}: ${row}`);
-            return;
-        }
-
-        const [name, lon, lat] = columns.map(column => column.trim());
-
-        if (!lon || !lat || isNaN(lon) || isNaN(lat)) {
-            console.error(`Invalid coordinates at line ${index + 2}: ${row}`);
-            return;
-        }
-
-        results[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
+    rows.forEach(row => {
+        const [name, lon, lat] = row.split(',').map(column => column.trim());
+        addrData[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
     });
 
-    return results;
+    return addrData;
 }
 
 // Leaflet 지도를 초기화하는 함수
@@ -70,15 +71,11 @@ async function initMap(position) {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // 주소 데이터와 상호명 데이터를 fetch
-    const [storeData, addrData] = await Promise.all([
-        fetchData('../CSV/lottowinnerstores.csv'),
-        fetchData('../CSV/lottowinnerstores_addr.csv')
-    ]);
-
-    const parsedStoreData = parseCSV(storeData);
-    const parsedAddrData = parseAddrCSV(addrData);
-    const allStores = Object.values(parsedStoreData).flat();
+    // 데이터 fetch 및 파싱
+    const [storeData, addrDataText] = await Promise.all([fetchData(), fetchAddrData()]);
+    const parsedData = parseCSV(storeData);
+    const addrData = parseAddrCSV(addrDataText);
+    const allStores = Object.values(parsedData).flat();
 
     const uniqueStores = {};
 
@@ -91,33 +88,30 @@ async function initMap(position) {
         }
     });
 
-    for (const store of Object.values(uniqueStores)) {
-        const addrInfo = parsedAddrData[store.name];
-        if (addrInfo) {
-            const coords = [addrInfo.lat, addrInfo.lon];
-            const marker = L.marker(coords).addTo(map);
-
+    // 상호명과 좌표 데이터를 이용하여 마커 추가
+    Object.values(uniqueStores).forEach(store => {
+        const coords = addrData[store.name];
+        if (coords) {
+            const marker = L.marker([coords.lat, coords.lon]).addTo(map);
             const popupContent = `
                 <b>${store.name}</b><br>
                 ${store.details.map(detail => `${detail.round}회(${detail.category})`).join('<br>')}
             `;
             marker.bindPopup(popupContent);
         } else {
-            console.error(`No coordinates found for store: ${store.name}`);
+            console.error(`Coordinates not found for store: ${store.name}`);
         }
-    }
+    });
 }
 
 // window.onload 이벤트 핸들러
 window.onload = function() {
-    // 사용자의 현재 위치를 가져오는 함수
     navigator.geolocation.getCurrentPosition(initMap, error => {
         console.error('Error fetching location:', error);
-        // 위치를 가져오지 못했을 때 기본 위치로 지도 초기화
-        initMap({ coords: { latitude: 37.5665, longitude: 126.9780 } });
+        initMap({ coords: { latitude: 37.5665, longitude: 126.9780 } }); // 기본 위치 서울
     });
 
-    fetchData('../CSV/lottowinnerstores.csv').then(data => {
+    fetchData().then(data => {
         const parsedData = parseCSV(data);
         const rounds = Object.keys(parsedData).sort((a, b) => b - a);
         const roundSelect = document.getElementById('round-select');
