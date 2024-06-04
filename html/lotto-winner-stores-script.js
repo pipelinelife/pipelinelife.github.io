@@ -30,10 +30,10 @@ function parseCSV(data, hasCoordinates = false) {
             }
         } else {
             const [round, name, category, address] = columns;
-            if (!results[round]) {
-                results[round] = [];
+            if (!results[name]) {
+                results[name] = [];
             }
-            results[round].push({ round, name, category, address });
+            results[name].push({ round, name, category, address });
         }
     });
 
@@ -60,12 +60,10 @@ async function initMap(position) {
 
         const parsedStoreData = parseCSV(storeData);
         const parsedAddrData = parseCSV(addrData, true);
-        const allStores = Object.values(parsedStoreData).flat();
 
         // 매칭되는 데이터가 제대로 있는지 확인하기 위한 디버깅 로그 추가
         console.log('Parsed Store Data:', parsedStoreData);
         console.log('Parsed Address Data:', parsedAddrData);
-        console.log('All Stores:', allStores);
 
         // 마커를 저장할 레이어 그룹 생성
         const markerLayer = L.layerGroup().addTo(map);
@@ -76,16 +74,19 @@ async function initMap(position) {
             const zoom = map.getZoom();  // 현재 확대 수준 가져오기
 
             if (zoom >= 12) {  // 확대 수준이 12 이상일 때만 마커 표시
-                allStores.forEach(store => {
-                    const addrInfo = parsedAddrData[store.name];
+                Object.keys(parsedStoreData).forEach(storeName => {
+                    const storeDataArray = parsedStoreData[storeName];
+                    const addrInfo = parsedAddrData[storeName];
+
                     if (addrInfo && bounds.contains([addrInfo.lat, addrInfo.lon])) {
                         const coords = [addrInfo.lat, addrInfo.lon];
                         const marker = L.marker(coords).addTo(markerLayer);
 
+                        // 모든 회차와 구분 정보를 하나의 팝업 내용으로 합침
                         const popupContent = `
-                            <b>${store.name}</b><br>
-                            ${store.round}회 (${store.category})<br>
-                            ${store.address}
+                            <b>${storeName}</b><br>
+                            ${storeDataArray.map(store => `${store.round}회 (${store.category})`).join('<br>')}<br>
+                            ${storeDataArray[0].address}
                         `;
                         marker.bindPopup(popupContent);
                     }
