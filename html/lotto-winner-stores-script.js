@@ -12,28 +12,20 @@ function parseCSV(data, hasCoordinates = false) {
 
     rows.forEach((row, index) => {
         const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/^"|"$/g, '').trim());
-        if (hasCoordinates && columns.length !== 6) {
-            console.error(`Invalid data at line ${index + 2}: ${row}`);
-            console.log('Expected 6 columns, but got:', columns.length, columns);
-            return;
-        }
-        if (!hasCoordinates && columns.length !== 4) {
-            console.error(`Invalid data at line ${index + 2}: ${row}`);
-            console.log('Expected 4 columns, but got:', columns.length, columns);
-            return;
-        }
-
-        if (hasCoordinates) {
-            const [name, addr, geocoding, lon, lat, note] = columns;
+        if (hasCoordinates && columns.length >= 6) {
+            const [name, addr, geocoding, lon, lat, ...rest] = columns;
             if (!results[name]) {
                 results[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
             }
-        } else {
-            const [round, name, category, address] = columns;
-            if (!results[name]) {
-                results[name] = [];
+        } else if (!hasCoordinates && columns.length >= 4) {
+            const [round, name, category, address, ...rest] = columns;
+            if (!results[round]) {
+                results[round] = [];
             }
-            results[name].push({ round, name, category, address });
+            results[round].push({ name, category, address });
+        } else {
+            console.error(`Invalid data at line ${index + 2}: ${row}`);
+            console.log('Expected more columns, but got:', columns.length, columns);
         }
     });
 
@@ -74,8 +66,19 @@ async function initMap(position) {
             const zoom = map.getZoom();  // 현재 확대 수준 가져오기
 
             if (zoom >= 12) {  // 확대 수준이 12 이상일 때만 마커 표시
-                Object.keys(parsedStoreData).forEach(storeName => {
-                    const storeDataArray = parsedStoreData[storeName];
+                const aggregatedData = {};  // 상호명별로 데이터를 합침
+
+                Object.keys(parsedStoreData).forEach(round => {
+                    parsedStoreData[round].forEach(store => {
+                        if (!aggregatedData[store.name]) {
+                            aggregatedData[store.name] = { rounds: [], category: store.category, address: store.address };
+                        }
+                        aggregatedData[store.name].rounds.push(round);
+                    });
+                });
+
+                Object.keys(aggregatedData).forEach(storeName => {
+                    const storeInfo = aggregatedData[storeName];
                     const addrInfo = parsedAddrData[storeName];
 
                     if (addrInfo && bounds.contains([addrInfo.lat, addrInfo.lon])) {
@@ -85,8 +88,8 @@ async function initMap(position) {
                         // 모든 회차와 구분 정보를 하나의 팝업 내용으로 합침
                         const popupContent = `
                             <b>${storeName}</b><br>
-                            ${storeDataArray.map(store => `${store.round}회 (${store.category})`).join('<br>')}<br>
-                            ${storeDataArray[0].address}
+                            ${storeInfo.rounds.map(round => `${round}회 (${storeInfo.category})`).join('<br>')}<br>
+                            ${storeInfo.address}
                         `;
                         marker.bindPopup(popupContent);
                     }
@@ -114,7 +117,7 @@ window.onload = function() {
 
     fetchData('../CSV/lottowinnerstores.csv').then(data => {
         const parsedData = parseCSV(data);
-        const rounds = Object.keys(parsedData).sort((a, b) => b - a);
+        const rounds = Object.keys(parsedData).sort((a, b) => b - a); // 중복 제거 및 정렬
         const roundSelect = document.getElementById('round-select');
 
         rounds.forEach(round => {
