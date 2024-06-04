@@ -90,6 +90,8 @@ async function initMap(position) {
                         marker.bindPopup(popupContent);
                     }
                 });
+            } else {
+                markerLayer.clearLayers();  // 확대 수준이 11 이하일 때 모든 마커 제거
             }
         }
 
