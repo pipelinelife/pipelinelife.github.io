@@ -67,24 +67,30 @@ async function initMap(position) {
         console.log('Parsed Address Data:', parsedAddrData);
         console.log('All Stores:', allStores);
 
-        function updateMarkers() {
-            // 현재 보이는 범위 가져오기
-            const bounds = map.getBounds();
-            
-            allStores.forEach(store => {
-                const addrInfo = parsedAddrData[store.name];
-                if (addrInfo && bounds.contains([addrInfo.lat, addrInfo.lon])) {
-                    const coords = [addrInfo.lat, addrInfo.lon];
-                    const marker = L.marker(coords).addTo(map);
+        // 마커를 저장할 레이어 그룹 생성
+        const markerLayer = L.layerGroup().addTo(map);
 
-                    const popupContent = `
-                        <b>${store.name}</b><br>
-                        ${store.round}회 (${store.category})<br>
-                        ${store.address}
-                    `;
-                    marker.bindPopup(popupContent);
-                }
-            });
+        function updateMarkers() {
+            markerLayer.clearLayers();  // 기존 마커 제거
+            const bounds = map.getBounds();  // 현재 보이는 범위 가져오기
+            const zoom = map.getZoom();  // 현재 확대 수준 가져오기
+
+            if (zoom >= 12) {  // 확대 수준이 12 이상일 때만 마커 표시
+                allStores.forEach(store => {
+                    const addrInfo = parsedAddrData[store.name];
+                    if (addrInfo && bounds.contains([addrInfo.lat, addrInfo.lon])) {
+                        const coords = [addrInfo.lat, addrInfo.lon];
+                        const marker = L.marker(coords).addTo(markerLayer);
+
+                        const popupContent = `
+                            <b>${store.name}</b><br>
+                            ${store.round}회 (${store.category})<br>
+                            ${store.address}
+                        `;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+            }
         }
 
         map.on('moveend', updateMarkers);  // 지도 이동/확대가 끝난 후 마커 업데이트
