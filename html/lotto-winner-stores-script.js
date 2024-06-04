@@ -11,9 +11,7 @@ function parseCSV(data, hasCoordinates = false) {
     const results = {};
 
     rows.forEach((row, index) => {
-        const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.trim().replace(/^"|"$/g, ''));
-        console.log(`Row ${index + 2}:`, columns);  // 각 행의 열 출력
-
+        const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/^"|"$/g, '').trim());
         if (hasCoordinates && columns.length !== 6) {
             console.error(`Invalid data at line ${index + 2}: ${row}`);
             console.log('Expected 6 columns, but got:', columns.length, columns);
@@ -69,23 +67,28 @@ async function initMap(position) {
         console.log('Parsed Address Data:', parsedAddrData);
         console.log('All Stores:', allStores);
 
-        allStores.forEach(store => {
-            const addrInfo = parsedAddrData[store.name];
-            if (addrInfo) {
-                const coords = [addrInfo.lat, addrInfo.lon];
-                console.log(`Adding marker for store: ${store.name} at coords: ${coords}`);
-                const marker = L.marker(coords).addTo(map);
+        function updateMarkers() {
+            // 현재 보이는 범위 가져오기
+            const bounds = map.getBounds();
+            
+            allStores.forEach(store => {
+                const addrInfo = parsedAddrData[store.name];
+                if (addrInfo && bounds.contains([addrInfo.lat, addrInfo.lon])) {
+                    const coords = [addrInfo.lat, addrInfo.lon];
+                    const marker = L.marker(coords).addTo(map);
 
-                const popupContent = `
-                    <b>${store.name}</b><br>
-                    ${store.round}회 (${store.category})<br>
-                    ${store.address}
-                `;
-                marker.bindPopup(popupContent);
-            } else {
-                console.error(`No coordinates found for store: ${store.name}`);
-            }
-        });
+                    const popupContent = `
+                        <b>${store.name}</b><br>
+                        ${store.round}회 (${store.category})<br>
+                        ${store.address}
+                    `;
+                    marker.bindPopup(popupContent);
+                }
+            });
+        }
+
+        map.on('moveend', updateMarkers);  // 지도 이동/확대가 끝난 후 마커 업데이트
+        updateMarkers();  // 초기 마커 설정
     } catch (error) {
         console.error('Error fetching or processing data:', error);
     }
