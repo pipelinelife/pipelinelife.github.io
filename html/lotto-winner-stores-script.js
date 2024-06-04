@@ -10,8 +10,10 @@ function parseCSV(data, hasCoordinates = false) {
     const rows = data.split('\n').slice(1);
     const results = {};
 
+    const regex = /,(?=(?:(?:[^"]*"){2})*[^"]*$)/;
+
     rows.forEach((row, index) => {
-        const columns = row.split(',');
+        const columns = row.split(regex).map(col => col.trim().replace(/^"|"$/g, ''));
         if (hasCoordinates && columns.length !== 5) {
             console.error(`Invalid data at line ${index + 2}: ${row}`);
             console.log('Expected 5 columns, but got:', columns.length, columns);
@@ -24,12 +26,12 @@ function parseCSV(data, hasCoordinates = false) {
         }
 
         if (hasCoordinates) {
-            const [name, addr, geocoding, lon, lat] = columns.map(column => column.trim());
+            const [name, addr, geocoding, lon, lat] = columns;
             if (!results[name]) {
                 results[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
             }
         } else {
-            const [round, name, category, address] = columns.map(column => column.trim());
+            const [round, name, category, address] = columns;
             if (!results[round]) {
                 results[round] = [];
             }
