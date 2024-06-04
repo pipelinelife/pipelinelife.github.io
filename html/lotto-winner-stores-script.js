@@ -65,6 +65,7 @@ async function initMap(position) {
         const allStores = Object.values(parsedStoreData).flat();
 
         // 매칭되는 데이터가 제대로 있는지 확인하기 위한 디버깅 로그 추가
+        console.log('Parsed Store Data:', parsedStoreData);
         console.log('Parsed Address Data:', parsedAddrData);
         console.log('All Stores:', allStores);
 
@@ -77,12 +78,12 @@ async function initMap(position) {
 
                 const popupContent = `
                     <b>${store.name}</b><br>
-                    ${store.details.map(detail => `${detail.round}회(${detail.category})`).join('<br>')}
+                    ${store.round}회 (${store.category})<br>
+                    ${store.address}
                 `;
                 marker.bindPopup(popupContent);
             } else {
                 console.error(`No coordinates found for store: ${store.name}`);
-                console.log('Parsed Address Data:', parsedAddrData);
             }
         });
     } catch (error) {
