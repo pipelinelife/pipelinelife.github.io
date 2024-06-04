@@ -85,7 +85,8 @@ async function initMap(position) {
                         // 모든 회차와 구분 정보를 하나의 팝업 내용으로 합침
                         const popupContent = `
                             <b>${storeName}</b><br>
-                            ${storeDataArray.map(store => `${store.round}회 (${store.category})`).join('<br>')}
+                            ${storeDataArray.map(store => `${store.round}회 (${store.category})`).join('<br>')}<br>
+                            ${storeDataArray[0].address}
                         `;
                         marker.bindPopup(popupContent);
                     }
