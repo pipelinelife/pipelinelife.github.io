@@ -11,7 +11,9 @@ function parseCSV(data, hasCoordinates = false) {
     const results = {};
 
     rows.forEach((row, index) => {
-        const columns = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g).map(col => col.replace(/^"|"$/g, '').trim());
+        const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.trim().replace(/^"|"$/g, ''));
+        console.log(`Row ${index + 2}:`, columns);  // 각 행의 열 출력
+
         if (hasCoordinates && columns.length !== 6) {
             console.error(`Invalid data at line ${index + 2}: ${row}`);
             console.log('Expected 6 columns, but got:', columns.length, columns);
