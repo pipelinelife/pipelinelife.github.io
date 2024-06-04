@@ -70,6 +70,7 @@ async function initMap(position) {
             const addrInfo = parsedAddrData[store.name];
             if (addrInfo) {
                 const coords = [addrInfo.lat, addrInfo.lon];
+                console.log(`Adding marker for store: ${store.name} at coords: ${coords}`);
                 const marker = L.marker(coords).addTo(map);
 
                 const popupContent = `
