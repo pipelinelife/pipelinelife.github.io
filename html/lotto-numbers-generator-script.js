@@ -1,122 +1,202 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로또 번호 추출기</title>
-    <link rel="stylesheet" href="lotto-numbers-generator-styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-</head>
-<body>
-    <header>
-        <h1>로또 번호 추출기</h1>
-        <nav class="top-nav">
-            <a href="../index.html">홈</a> |
-            <a href="lotto-numbers-generator.html" class="active">로또번호 추출</a>
-        </nav>
-    </header>
-    <div class="top-nav">
-        <a href="past-lotto-numbers.html">역대 로또번호</a> |
-        <a href="lotto-numbers-analysis.html">번호 분석</a> |
-        <a href="lotto-winner-stores.html">1등 배출점</a>
-    </div>
-    <div id="condition-form">
-        <h3>조건 설정 <span id="popup-icon">ℹ️</span></h3>
-        <div class="popup" id="probability-popup"></div>
-        <div class="left">
-            <div>
-                <label for="frequency-all">출현빈도 전체:</label>
-                <input type="number" id="frequency-all" value="1" placeholder="전체" />
-            </div>
-            <div>
-                <label for="frequency-100">최근 100단위:</label>
-                <input type="number" id="frequency-100" value="2" placeholder="100단위" />
-            </div>
-            <div>
-                <label for="frequency-20">최근 20단위:</label>
-                <input type="number" id="frequency-20" value="10" placeholder="20단위" />
-            </div>
-            <div>
-                <label for="frequency-5">최근 5단위:</label>
-                <input type="number" id="frequency-5" value="5" placeholder="5단위" />
-            </div>
-            <div>
-                <label for="frequency-1">최근 1단위:</label>
-                <input type="number" id="frequency-1" value="-30" placeholder="1단위" />
-            </div>
-        </div>
-        <div class="right">
-            <div>
-                <label for="odd-even">홀짝:</label>
-                <input type="checkbox" id="odd-even" checked />
-                <span class="small-text">6 : 0 제외</span>
-            </div>
-            <div>
-                <label for="high-low">고저:</label>
-                <input type="checkbox" id="high-low" checked />
-                <span class="small-text">6 : 0 제외</span>
-            </div>
-            <div>
-                <label for="sum">총합의 수:</label>
-                <select id="sum-min">
-                    <option value="61">61</option>
-                    <option value="81">81</option>
-                    <option value="101" selected>101</option>
-                    <option value="121">121</option>
-                    <option value="141">141</option>
-                    <option value="161">161</option>
-                    <option value="181">181</option>
-                    <option value="201">201</option>
-                    <option value="221">221</option>
-                    <option value="241">241</option>
-                </select>
-                ~
-                <select id="sum-max">
-                    <option value="80">80</option>
-                    <option value="100">100</option>
-                    <option value="120">120</option>
-                    <option value="140">140</option>
-                    <option value="160">160</option>
-                    <option value="180">180</option>
-                    <option value="200">200</option>
-                    <option value="220" selected>220</option>
-                    <option value="240">240</option>
-                    <option value="260">260</option>
-                </select>
-            </div>
-            <div>
-                <label for="consecutive">연속된 숫자:</label>
-                <select id="consecutive">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3" selected>3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                </select>
-                <span>개 이내</span>
-            </div>
-            <div>
-                <label for="range">10단위씩 허용된 수:</label>
-                <select id="range">
-                    <option value="2">2</option>
-                    <option value="3" selected>3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                </select>
-                <span>개 이내</span>
-            </div>
-        </div>
-    </div>
-    <div id="lotto-generator">
-        <button id="generate-btn">번호 생성하기</button>
-        <div id="display-numbers"></div>
-    </div>
-    <div id="past-numbers">
-        <h2>생성된 번호</h2>
-        <div id="numbers-list"></div>
-    </div>
-    <script src="lotto-numbers-generator-script.js"></script>
-</body>
-</html>
+document.addEventListener('DOMContentLoaded', function() {
+    let drawCount = 0;
+
+    document.getElementById('generate-btn').addEventListener('click', function() {
+        let frequencyAll = parseFloat(document.getElementById('frequency-all').value);
+        let frequency100 = parseFloat(document.getElementById('frequency-100').value);
+        let frequency20 = parseFloat(document.getElementById('frequency-20').value);
+        let frequency5 = parseFloat(document.getElementById('frequency-5').value);
+        let frequency1 = parseFloat(document.getElementById('frequency-1').value);
+        let oddEvenChecked = document.getElementById('odd-even').checked;
+        let highLowChecked = document.getElementById('high-low').checked;
+        let sumMin = parseInt(document.getElementById('sum-min').value);
+        let sumMax = parseInt(document.getElementById('sum-max').value);
+        let consecutiveLimit = parseInt(document.getElementById('consecutive').value);
+        let rangeLimit = parseInt(document.getElementById('range').value);
+
+        // CSV 파일을 읽고 번호를 생성
+        readCSV('../CSV/lotto_number_frequency_combined.csv', function(csvData) {
+            const probabilities = calculateProbabilities(csvData, frequencyAll, frequency100, frequency20, frequency5, frequency1);
+            showProbabilityPopup(probabilities);
+            let lottoNumbers;
+            let maxAttempts = 1000; // 최대 시도 횟수
+            let attempts = 0;
+
+            do {
+                lottoNumbers = generateLottoNumbers(probabilities);
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    alert('조건에 맞는 번호를 생성할 수 없습니다. 조건을 다시 설정해 주세요.');
+                    return;
+                }
+            } while (!filterNumbers(lottoNumbers, oddEvenChecked, highLowChecked, sumMin, sumMax, consecutiveLimit, rangeLimit));
+
+            // 번호 생성 후 표시하는 코드
+            displayNumbers(lottoNumbers);
+        });
+    });
+
+    document.getElementById('popup-icon').addEventListener('mouseover', function(event) {
+        document.getElementById('probability-popup').style.display = 'block';
+        document.getElementById('probability-popup').style.left = event.pageX + 'px';
+        document.getElementById('probability-popup').style.top = event.pageY + 'px';
+    });
+
+    document.getElementById('popup-icon').addEventListener('mouseout', function() {
+        document.getElementById('probability-popup').style.display = 'none';
+    });
+
+    function readCSV(filePath, callback) {
+        fetch(filePath)
+            .then(response => response.text())
+            .then(data => {
+                const parsedData = Papa.parse(data, { header: true }).data;
+                callback(parsedData);
+            });
+    }
+
+    function calculateProbabilities(csvData, frequencyAll, frequency100, frequency20, frequency5, frequency1) {
+        const probabilities = new Array(45).fill(0);
+
+        csvData.forEach(row => {
+            const number = parseInt(row.Number); // 각 행의 번호
+            const freqAll = parseFloat(row.FrequencyAll) * frequencyAll;
+            const freq100 = parseFloat(row.Frequency100) * frequency100;
+            const freq20 = parseFloat(row.Frequency20) * frequency20;
+            const freq5 = parseFloat(row.Frequency5) * frequency5;
+            const freq1 = parseFloat(row.Frequency1) * frequency1;
+
+            // 각 조건을 모두 더함
+            probabilities[number - 1] = freqAll + freq100 + freq20 + freq5 + freq1;
+        });
+
+        // 확률로 변환
+        const totalSum = probabilities.reduce((a, b) => a + b, 0);
+        return probabilities.map(prob => prob / totalSum);
+    }
+
+    function generateLottoNumbers(probabilities) {
+        const numbers = [];
+        while (numbers.length < 6) {
+            const rand = Math.random();
+            let sum = 0;
+            for (let i = 0; i < probabilities.length; i++) {
+                sum += probabilities[i];
+                if (rand < sum) {
+                    if (!numbers.includes(i + 1)) {
+                        numbers.push(i + 1);
+                    }
+                    break;
+                }
+            }
+        }
+        return numbers.sort((a, b) => a - b);
+    }
+
+    function filterNumbers(numbers, oddEvenChecked, highLowChecked, sumMin, sumMax, consecutiveLimit, rangeLimit) {
+        let oddCount = numbers.filter(num => num % 2 !== 0).length;
+        let evenCount = 6 - oddCount;
+        let highCount = numbers.filter(num => num > 23).length;
+        let lowCount = 6 - highCount;
+        let sum = numbers.reduce((a, b) => a + b, 0);
+        let maxConsecutive = getMaxConsecutive(numbers);
+        let rangeCounts = getRangeCounts(numbers);
+
+        if (oddEvenChecked && (oddCount === 0 || oddCount === 6)) return false;
+        if (highLowChecked && (highCount === 0 || highCount === 6)) return false;
+        if (sum < sumMin || sum > sumMax) return false;
+        if (maxConsecutive > consecutiveLimit) return false;
+        if (rangeCounts.some(count => count > rangeLimit)) return false;
+
+        return true;
+    }
+
+    function getMaxConsecutive(numbers) {
+        let maxConsecutive = 1;
+        let currentConsecutive = 1;
+
+        for (let i = 1; i < numbers.length; i++) {
+            if (numbers[i] === numbers[i - 1] + 1) {
+                currentConsecutive++;
+            } else {
+                if (currentConsecutive > maxConsecutive) {
+                    maxConsecutive = currentConsecutive;
+                }
+                currentConsecutive = 1;
+            }
+        }
+
+        return Math.max(maxConsecutive, currentConsecutive);
+    }
+
+    function getRangeCounts(numbers) {
+        let ranges = [0, 0, 0, 0, 0];
+        numbers.forEach(num => {
+            if (num <= 10) ranges[0]++;
+            else if (num <= 20) ranges[1]++;
+            else if (num <= 30) ranges[2]++;
+            else if (num <= 40) ranges[3]++;
+            else ranges[4]++;
+        });
+        return ranges;
+    }
+
+    function displayNumbers(lottoNumbers) {
+        let oddCount = lottoNumbers.filter(num => num % 2 !== 0).length;
+        let evenCount = 6 - oddCount;
+        let highCount = lottoNumbers.filter(num => num > 23).length;
+        let lowCount = 6 - highCount;
+        let sum = lottoNumbers.reduce((a, b) => a + b, 0);
+
+        const displayNumbersContainer = document.getElementById('display-numbers');
+        const pastNumbersContainer = document.getElementById('numbers-list');
+
+        const newCurrentNumbersDiv = document.createElement('div');
+        newCurrentNumbersDiv.className = 'numbers-row';
+
+        drawCount++;
+        const drawLabel = document.createElement('div');
+        drawLabel.textContent = `${drawCount} 추첨`;
+        drawLabel.style.fontWeight = 'bold';
+        drawLabel.style.display = 'inline-block';
+        drawLabel.style.width = '70px';
+        newCurrentNumbersDiv.appendChild(drawLabel);
+
+        lottoNumbers.forEach(num => {
+            const numDiv = document.createElement('div');
+            numDiv.className = 'number-box';
+            numDiv.textContent = num;
+            numDiv.style.backgroundColor = getColorForNumber(num);
+            newCurrentNumbersDiv.appendChild(numDiv);
+        });
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'info-row';
+        infoDiv.textContent = `홀짝 비율: ${oddCount} : ${evenCount}, 고저 비율: ${highCount} : ${lowCount}, 총합: ${sum}`;
+        displayNumbersContainer.insertBefore(infoDiv, displayNumbersContainer.firstChild);
+        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
+
+        if (displayNumbersContainer.children.length > 2) {
+            Array.from(displayNumbersContainer.children).slice(2).forEach(child => {
+                pastNumbersContainer.appendChild(child);
+            });
+        }
+    }
+
+    function showProbabilityPopup(probabilities) {
+        let popup = document.getElementById('probability-popup');
+        let content = '<strong>각 번호별 확률 계산식:</strong><br>';
+        probabilities.forEach((prob, index) => {
+            content += `번호 ${index + 1}: ${prob.toFixed(5)}<br>`;
+        });
+        popup.innerHTML = content;
+    }
+});
+
+function getColorForNumber(number) {
+    if (number <= 10) return '#FBC400'; // Yellow
+    else if (number <= 20) return '#69C8F2'; // Blue
+    else if (number <= 30) return '#FF7272'; // Red
+    else if (number <= 40) return '#AAAAAA'; // Grey
+    else return '#B0D840'; // Green
+}
