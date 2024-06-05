@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const totalSum = probabilities.reduce((a, b) => a + b, 0);
         return probabilities.map(prob => prob / totalSum);
     }
+
     // 번호 생성 함수
     function generateLottoNumbers(probabilities) {
         const numbers = [];
@@ -221,7 +222,8 @@ document.addEventListener('DOMContentLoaded', function() {
         infoDiv.className = 'info-row';
         infoDiv.textContent = `홀짝 비율: ${oddCount} : ${evenCount}, 고저 비율: ${highCount} : ${lowCount}, 총합: ${sum}`;
         displayNumbersContainer.insertBefore(infoDiv, displayNumbersContainer.firstChild);
-        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer
+        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
+
 
         // 과거 번호를 "생성된 번호" 영역으로 이동
         if (displayNumbersContainer.children.length > 2) {
