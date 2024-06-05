@@ -19,8 +19,16 @@ document.addEventListener('DOMContentLoaded', function() {
         readCSV('../CSV/lotto_number_frequency_combined.csv', function(csvData) {
             const probabilities = calculateProbabilities(csvData, frequencyAll, frequency100, frequency20, frequency5, frequency1);
             let lottoNumbers;
+            let maxAttempts = 1000; // 최대 시도 횟수
+            let attempts = 0;
+
             do {
                 lottoNumbers = generateLottoNumbers(probabilities);
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    alert('조건에 맞는 번호를 생성할 수 없습니다. 조건을 다시 설정해 주세요.');
+                    return;
+                }
             } while (!filterNumbers(lottoNumbers, oddEvenChecked, highLowChecked, sumMin, sumMax, consecutiveLimit, rangeLimit));
 
             // 번호 생성 후 표시하는 코드
@@ -58,7 +66,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const totalSum = probabilities.reduce((a, b) => a + b, 0);
         return probabilities.map(prob => prob / totalSum);
     }
-
     // 번호 생성 함수
     function generateLottoNumbers(probabilities) {
         const numbers = [];
@@ -214,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
         infoDiv.className = 'info-row';
         infoDiv.textContent = `홀짝 비율: ${oddCount} : ${evenCount}, 고저 비율: ${highCount} : ${lowCount}, 총합: ${sum}`;
         displayNumbersContainer.insertBefore(infoDiv, displayNumbersContainer.firstChild);
-        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
+        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer
 
         // 과거 번호를 "생성된 번호" 영역으로 이동
         if (displayNumbersContainer.children.length > 2) {
