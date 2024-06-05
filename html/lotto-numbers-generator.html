@@ -12,6 +12,8 @@
             margin-left: 5px;
         }
     </style>
+    <!-- PapaParse 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 </head>
 <body>
     <header>
@@ -32,23 +34,23 @@
         <div class="left">
             <div>
                 <label for="frequency-all">출현빈도 전체:</label>
-                <input type="number" id="frequency-all" value="3" placeholder="전체" />
+                <input type="number" id="frequency-all" value="1" placeholder="전체" />
             </div>
             <div>
                 <label for="frequency-100">최근 100단위:</label>
-                <input type="number" id="frequency-100" value="0.5" placeholder="100단위" />
+                <input type="number" id="frequency-100" value="2" placeholder="100단위" />
             </div>
             <div>
                 <label for="frequency-20">최근 20단위:</label>
-                <input type="number" id="frequency-20" value="0.3" placeholder="20단위" />
+                <input type="number" id="frequency-20" value="10" placeholder="20단위" />
             </div>
             <div>
                 <label for="frequency-5">최근 5단위:</label>
-                <input type="number" id="frequency-5" value="0.1" placeholder="5단위" />
+                <input type="number" id="frequency-5" value="5" placeholder="5단위" />
             </div>
             <div>
                 <label for="frequency-1">최근 1단위:</label>
-                <input type="number" id="frequency-1" value="-0.3" placeholder="1단위" />
+                <input type="number" id="frequency-1" value="-30" placeholder="1단위" />
             </div>
         </div>
         <div class="right">
