@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로또 번호 추출기</title>
     <link rel="stylesheet" href="lotto-numbers-generator-styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        .small-text {
+            color: red;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -20,9 +26,9 @@
         <a href="lotto-numbers-analysis.html">번호 분석</a> |
         <a href="lotto-winner-stores.html">1등 배출점</a>
     </div>
+    <!-- 조건 입력 폼 추가 -->
     <div id="condition-form">
-        <h3>조건 설정 <span id="popup-icon">ℹ️</span></h3>
-        <div class="popup" id="probability-popup"></div>
+        <h3>조건 설정</h3>
         <div class="left">
             <div>
                 <label for="frequency-all">출현빈도 전체:</label>
