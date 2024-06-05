@@ -36,14 +36,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    document.getElementById('popup-icon').addEventListener('mouseover', function(event) {
-        document.getElementById('probability-popup').style.display = 'block';
-        document.getElementById('probability-popup').style.left = event.pageX + 'px';
-        document.getElementById('probability-popup').style.top = event.pageY + 'px';
+    // 이벤트 핸들러 설정
+    const popupIcon = document.getElementById('popup-icon');
+    const probabilityPopup = document.getElementById('probability-popup');
+
+    popupIcon.addEventListener('mouseover', function(event) {
+        probabilityPopup.style.display = 'block';
+        probabilityPopup.style.left = event.pageX + 'px';
+        probabilityPopup.style.top = event.pageY + 'px';
     });
 
-    document.getElementById('popup-icon').addEventListener('mouseout', function() {
-        document.getElementById('probability-popup').style.display = 'none';
+    popupIcon.addEventListener('mouseout', function() {
+        probabilityPopup.style.display = 'none';
     });
 
     function readCSV(filePath, callback) {
@@ -193,10 +197,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// 번호에 따른 배경색 결정 함수
 function getColorForNumber(number) {
-    if (number <= 10) return '#FBC400'; // Yellow
-    else if (number <= 20) return '#69C8F2'; // Blue
-    else if (number <= 30) return '#FF7272'; // Red
-    else if (number <= 40) return '#AAAAAA'; // Grey
-    else return '#B0D840'; // Green
+    if (number <= 10) {
+        return '#FBC400'; // Yellow
+    } else if (number <= 20) {
+        return '#69C8F2'; // Blue
+    } else if (number <= 30) {
+        return '#FF7272'; // Red
+    } else if (number <= 40) {
+        return '#AAAAAA'; // Grey
+    } else {
+        return '#B0D840'; // Green
+    }
 }
