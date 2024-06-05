@@ -71,8 +71,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         let lottoNumbers;
+        let maxAttempts = 1000; // 최대 시도 횟수
+        let attempts = 0;
+
         do {
             lottoNumbers = generateLottoNumbers();
+            attempts++;
+            if (attempts >= maxAttempts) {
+                alert('조건에 맞는 번호를 생성할 수 없습니다. 조건을 다시 설정해 주세요.');
+                return;
+            }
         } while (!filterNumbers(lottoNumbers));
 
         let oddCount = lottoNumbers.filter(num => num % 2 !== 0).length;
