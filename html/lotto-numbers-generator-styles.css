@@ -220,3 +220,16 @@ header {
         margin-top: 20px;
     }
 }
+
+/* 팝업 스타일 */
+.popup {
+    display: none; /* 기본적으로 팝업을 숨김 */
+    position: absolute; /* 팝업 위치를 절대 위치로 설정 */
+    background-color: white; /* 팝업 배경색을 흰색으로 설정 */
+    border: 1px solid #ccc; /* 테두리 색상을 회색으로 설정 */
+    padding: 10px; /* 내부 여백을 설정 */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* 박스 그림자를 설정 */
+    z-index: 10; /* 팝업이 다른 요소 위에 나타나도록 설정 */
+    max-width: 400px; /* 최대 너비를 설정 */
+    font-size: 14px; /* 폰트 크기를 설정 */
+}
