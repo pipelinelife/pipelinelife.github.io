@@ -213,4 +213,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const infoDiv = document.createElement('div');
         infoDiv.className = 'info-row';
         infoDiv.textContent = `홀짝 비율: ${oddCount} : ${evenCount}, 고저 비율: ${highCount} : ${lowCount}, 총합: ${sum}`;
-       
+        displayNumbersContainer.insertBefore(infoDiv, displayNumbersContainer.firstChild);
+        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
+
+        // 과거 번호를 "생성된 번호" 영역으로 이동
+        if (displayNumbersContainer.children.length > 2) {
+            Array.from(displayNumbersContainer.children).slice(2).forEach(child => {
+                pastNumbersContainer.appendChild(child);
+            });
+        }
+    }
+});
