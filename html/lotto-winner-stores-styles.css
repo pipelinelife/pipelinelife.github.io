@@ -1,7 +1,7 @@
 /* 전체 페이지 기본 설정 */
 body, html {
-    margin: 0; /* 기본 여백 제거 */
-    padding: 0; /* 기본 패딩 제거 */
+    margin: 0;
+    padding: 0;
     font-family: Arial, sans-serif; /* 폰트 설정 */
     background-color: #f4f4f4; /* 배경색 설정 */
     text-align: center; /* 텍스트 중앙 정렬 */
@@ -18,7 +18,7 @@ body, html {
 /* 내비게이션 링크 스타일 */
 .top-nav a {
     padding: 8px 16px; /* 패딩 설정 */
-    text-decoration: none; /* 밑줄 제거 */
+    text-decoration: none;
     color: #333; /* 글자 색상 */
     font-size: 16px; /* 글자 크기 */
 }
@@ -29,131 +29,194 @@ body, html {
     color: black; /* 글자 색상 */
 }
 
-/* 본문 스타일 */
 body {
-    font-family: Arial, sans-serif; /* 기본 폰트 설정 */
+    font-family: Arial, sans-serif;
 }
 
-/* 헤더 스타일 */
 header {
-    text-align: center; /* 텍스트 중앙 정렬 */
+    text-align: center;
     margin-bottom: 5px; /* 헤더와 네비게이션 바 사이의 간격 줄임 */
 }
 
-/* 테이블 스타일 */
-table {
-    width: 30%; /* 테이블 너비 설정, 기본 값 */
-    margin: 20px auto; /* 상하 여백 설정 및 중앙 정렬 */
-    border-collapse: collapse; /* 테이블 셀 간의 간격 제거 */
-}
-
-/* 미디어 쿼리: 모바일 화면 */
-@media screen and (max-width: 600px) {
-    table {
-        width: 97%; /* 모바일 화면에서 테이블 너비 설정 */
-    }
-
-    /* 모바일에서 열 너비 조정 */
-    th:nth-child(1), td:nth-child(1) {
-        width: 20%; /* 구분 열 너비 */
-    }
-    th:nth-child(2), td:nth-child(2) {
-        width: 35%; /* 상호명 열 너비 */
-    }
-    th:nth-child(3), td:nth-child(3) {
-        width: 45%; /* 소재지 열 너비 */
-    }
-}
-
-
-/* 테이블 헤더 및 셀 스타일 */
-th, td {
-    padding: 15px; /* 셀 내부 여백 설정 */
-    border: 1px solid #ddd; /* 셀 테두리 설정 */
+/* 로또 번호 생성기 섹션 스타일 */
+#lotto-generator {
     text-align: center; /* 텍스트 중앙 정렬 */
+    padding: 20px; /* 패딩 설정 */
 }
 
-/* 테이블 헤더 배경색 및 텍스트 색상 설정 */
-th {
-    white-space: nowrap; /* 줄바꿈 방지 */
-    background-color: #4CAF50; /* 배경색 */
-    color: white; /* 텍스트 색상 */
+/* 번호 생성 버튼 스타일 */
+#generate-btn {
+    background-color: #4CAF50; /* 배경 색 */
+    color: white; /* 글자 색 */
+    border: none; /* 테두리 없음 */
+    padding: 10px 20px; /* 패딩 설정 */
+    border-radius: 5px; /* 모서리 둥글게 */
+    cursor: pointer; /* 커서 포인터 모양 */
+    font-size: 18px; /* 글자 크기 */
+    display: block; /* 블록 디스플레이 */
+    width: 200px; /* 너비 설정 */
+    margin: auto; /* 자동 마진으로 중앙 정렬 */
 }
 
-/* 소재지 셀의 글자 크기 줄임 */
-.address {
-    font-size: 12px; /* 글자 크기 줄임 */
-    padding-top: 0; /* 위쪽 여백 제거 */
-    padding-bottom: 0; /* 아래쪽 여백 제거 */
-    padding-left: 5px; /* 왼쪽 여백 줄이기 */
-    padding-right: 5px; /* 오른쪽 여백 줄이기 */
+/* 생성된 번호 표시 영역 */
+#display-numbers {
+    margin-top: 20px; /* 상단 여백 */
 }
 
-/* 상호명 셀의 글자 크기 줄임 및 여백 제거 */
-.name {
-    font-size: 14px; /* 글자 크기 줄임 */
-    padding-top: 0; /* 위쪽 여백 제거 */
-    padding-bottom: 0; /* 아래쪽 여백 제거 */
+/* 과거 번호 리스트 섹션 스타일 */
+#past-numbers {
+    margin-top: 20px; /* 상단 여백 */
+    background-color: white; /* 배경색 */
+    padding: 15px; /* 패딩 */
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /* 박스 그림자 */
 }
 
-/* 구분 칸의 줄바꿈 방지 및 너비 고정 */
-.category {
-    white-space: nowrap; /* 줄바꿈 방지 */
-    padding-left: 5px; /* 왼쪽 여백 줄이기 */
-    padding-right: 5px; /* 오른쪽 여백 줄이기 */
-}
-
-/* 열 너비 조정 */
-th:nth-child(1), td:nth-child(1) {
-    width: 15%; /* 구분 열 너비 */
-}
-th:nth-child(2), td:nth-child(2) {
-    width: 35%; /* 상호명 열 너비 */
-}
-th:nth-child(3), td:nth-child(3) {
-    width: 50%; /* 소재지 열 너비 */
-}
-
-
-/* 회차 선택 섹션 스타일 */
-.round-selection {
-    margin: 20px 0; /* 상하 여백 설정 */
-}
-
-.round-selection label {
-    font-size: 16px; /* 글자 크기 설정 */
-    margin-right: 10px; /* 오른쪽 여백 설정 */
-}
-
-.round-selection select {
-    font-size: 16px; /* 글자 크기 설정 */
-    padding: 5px; /* 내부 여백 설정 */
-}
-
-.round-selection button {
-    font-size: 16px; /* 글자 크기 설정 */
-    padding: 5px 10px; /* 내부 여백 설정 */
-    background-color: #007bff; /* 배경색 설정 */
+/* 번호 공 스타일 */
+.number-box {
+    display: inline-block; /* 인라인 블록 디스플레이 */
+    width: 40px; /* 너비 설정 */
+    height: 40px; /* 높이 설정 */
+    line-height: 40px; /* 라인 높이 설정 */
+    border-radius: 50%; /* 원형 설정 */
     color: white; /* 글자 색상 설정 */
-    border: none; /* 테두리 제거 */
-    cursor: pointer; /* 커서 변경 */
+    text-align: center; /* 텍스트 중앙 정렬 */
+    margin: 5px; /* 마진 설정 */
+    background-color: #4CAF50; /* 기본 배경색 설정 */
 }
 
-.round-selection button:hover {
-    background-color: #0056b3; /* 호버 배경색 설정 */
+/* 번호 범위별 배경색 설정 */
+.number-box[data-number='1-10'] { background-color: #FBC400; }
+.number-box[data-number='11-20'] { background-color: #69C8F2; }
+.number-box[data-number='21-30'] { background-color: #FF7272; }
+.number-box[data-number='31-40'] { background-color: #AAAAAA; }
+.number-box[data-number='41-45'] { background-color: #B0D840; }
+
+/* 로또 결과 컨테이너의 기본 스타일 설정 */
+.lotto-past-result {
+    font-family: Arial, sans-serif; /* 폰트 스타일 지정 */
 }
 
-/* 기존 스타일에 추가 */
-
-.notice-1 {
-    margin: 20px 0;
-    text-align: center;
-    font-size: 1rem;
-    color: #333;
+/* 각 로또 번호 행의 스타일 */
+.lotto-past-row {
+    margin-bottom: 10px; /* 하단 여백 설정 */
+    background: #F4F4F4; /* 배경색 설정 */
+    padding: 10px; /* 패딩 설정 */
+    border-radius: 10px; /* 테두리 둥글게 처리 */
+    display: flex; /* Flexbox 레이아웃 적용 */
+    justify-content: space-around; /* 항목 간 공간 동일하게 설정 */
+    align-items: center; /* 항목들을 중앙 정렬 */
 }
-.notice-2 {
-    margin: 10px 0;
-    text-align: center;
-    font-size: 1rem;
-    color: #e01f1f;
+
+/* 일반 번호와 보너스 번호의 기본 스타일 */
+.lotto-past-number, .lotto-past-bonus {
+    width: 35px; /* 너비 설정 */
+    height: 35px; /* 높이 설정 */
+    display: flex; /* Flexbox 적용 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    border-radius: 50%; /* 원형으로 표시 */
+    color: white; /* 글자색 흰색으로 설정 */
+    font-weight: bold; /* 글자 굵게 */
+}
+
+/* 일반 번호의 배경색 설정 */
+.lotto-past-number {
+    background-color: #4CAF50; /* 배경색 초록색 설정 */
+}
+
+/* 보너스 번호의 배경색 설정 */
+.lotto-past-bonus {
+    background-color: #FF9800; /* 배경색 오렌지색 설정 */
+}
+
+/* 조건 폼 스타일 */
+#condition-form {
+    margin-bottom: 20px; /* 하단 여백 */
+    padding: 20px; /* 패딩 */
+    background-color: #ffffff; /* 배경색 */
+    display: flex; /* 플렉스박스 사용 */
+    flex-wrap: wrap; /* 여러 줄로 나누어 표시 */
+    justify-content: center; /* 중앙 정렬 */
+    align-items: center; /* 세로축 중앙 정렬 */
+    max-width: 700px; /* 최대 너비 설정 */
+    margin-left: auto; /* 중앙 정렬 */
+    margin-right: auto; /* 중앙 정렬 */
+}
+
+#condition-form h3 {
+    width: 100%; /* 제목은 전체 너비 사용 */
+    text-align: center; /* 중앙 정렬 */
+    margin-top: 0; /* 상단 여백 제거 */
+}
+
+#condition-form .left, #condition-form .right {
+    display: flex;
+    flex-direction: column;
+    width: 45%; /* 너비 줄임 */
+}
+
+#condition-form .right {
+    margin-left: 1%; /* 오른쪽 마진 조정 */
+}
+
+#condition-form div {
+    margin: 2px 0; /* 각 조건 입력란 여백 줄임 */
+    display: flex; /* 플렉스박스 사용하여 라벨과 입력란 배치 */
+    align-items: center; /* 세로축 중앙 정렬 */
+}
+
+#condition-form label {
+    width: 140px; /* 라벨 너비 */
+    margin-right: 5px; /* 라벨과 입력란 사이 여백 */
+}
+
+#condition-form input, #condition-form select {
+    width: 100px; /* 입력란 너비 설정 */
+    padding: 5px; /* 패딩 */
+    border: 1px solid #ccc; /* 테두리 */
+    border-radius: 3px; /* 모서리 둥글게 */
+    display: inline-block; /* 인라인 블록 */
+}
+
+/* 모바일 화면에서 조건 설정 스타일 조정 */
+@media (max-width: 600px) {
+    #condition-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    #condition-form .left, #condition-form .right {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    #condition-form div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    #condition-form label {
+        width: auto;
+        text-align: left;
+    }
+
+    #condition-form input, #condition-form select {
+        width: 35%;
+        max-width: 150px;
+        text-align: center;
+    }
+
+    #generate-btn {
+        width: 100%;
+        max-width: 300px;
+        margin-top: 20px;
+    }
 }
