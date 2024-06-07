@@ -1,164 +1,178 @@
-// 데이터를 fetch하는 함수
-async function fetchData(url) {
-    const response = await fetch(url);
-    const data = await response.text();
-    return data;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    let drawCount = 0; // 추첨 횟수를 저장할 변수 초기화
 
-// CSV 데이터를 파싱하는 함수
-function parseCSV(data, hasCoordinates = false) {
-    const rows = data.split('\n').slice(1);
-    const results = {};
+    document.getElementById('generate-btn').addEventListener('click', function() {
+        // 조건 입력값을 가져옴
+        let frequencyAll = document.getElementById('frequency-all').value;
+        let frequency100 = document.getElementById('frequency-100').value;
+        let frequency20 = document.getElementById('frequency-20').value;
+        let frequency5 = document.getElementById('frequency-5').value;
+        let frequency1 = document.getElementById('frequency-1').value;
+        let oddEvenChecked = document.getElementById('odd-even').checked;
+        let highLowChecked = document.getElementById('high-low').checked;
+        let sumMin = parseInt(document.getElementById('sum-min').value);
+        let sumMax = parseInt(document.getElementById('sum-max').value);
+        let consecutiveLimit = parseInt(document.getElementById('consecutive').value);
+        let rangeLimit = parseInt(document.getElementById('range').value);
 
-    rows.forEach((row, index) => {
-        const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/^"|"$/g, '').trim());
-        if (hasCoordinates && columns.length >= 6) {
-            const [name, addr, geocoding, lon, lat, ...rest] = columns;
-            if (!results[name]) {
-                results[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
+        
+        // 로또 번호 생성 함수
+        function generateLottoNumbers() {
+            let lottoNumbers = new Set();
+            while (lottoNumbers.size < 6) {
+                lottoNumbers.add(Math.floor(Math.random() * 45) + 1);
             }
-        } else if (!hasCoordinates && columns.length >= 4) {
-            const [round, name, category, address, ...rest] = columns;
-            if (!results[round]) {
-                results[round] = [];
-            }
-            results[round].push({ name, category, address });
-        } else {
-            console.error(`Invalid data at line ${index + 2}: ${row}`);
-            console.log('Expected more columns, but got:', columns.length, columns);
+            return Array.from(lottoNumbers).sort((a, b) => a - b);
         }
-    });
 
-    return results;
-}
+        // 조건에 따라 번호 필터링 함수
+        function filterNumbers(numbers) {
+            let oddCount = numbers.filter(num => num % 2 !== 0).length;
+            let evenCount = 6 - oddCount;
+            let highCount = numbers.filter(num => num > 23).length;
+            let lowCount = 6 - highCount;
+            let sum = numbers.reduce((a, b) => a + b, 0);
+            let maxConsecutive = getMaxConsecutive(numbers);
+            let rangeCounts = getRangeCounts(numbers);
 
-// Leaflet 지도를 초기화하는 함수
-async function initMap(position) {
-    const { latitude, longitude } = position.coords; // 현재 위치의 위도와 경도 가져오기
+            // 홀짝 체크박스 조건 적용
+            if (oddEvenChecked && (oddCount === 0 || oddCount === 6)) {
+                return false;
+            }
 
-    // 현재 위치를 중심으로 지도 초기화
-    const map = L.map('map').setView([latitude, longitude], 12);
+            // 고저 체크박스 조건 적용
+            if (highLowChecked && (highCount === 0 || highCount === 6)) {
+                return false;
+            }
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+            // 총합 조건 적용
+            if (sum < sumMin || sum > sumMax) {
+                return false;
+            }
 
-    // 주소 데이터와 상호명 데이터를 fetch
-    try {
-        const [storeData, addrData] = await Promise.all([
-            fetchData('../CSV/lottowinnerstores.csv'),
-            fetchData('../CSV/lottowinnerstores_addr.csv')
-        ]);
+            // 연속된 숫자 조건 적용
+            if (maxConsecutive > consecutiveLimit) {
+                return false;
+            }
 
-        const parsedStoreData = parseCSV(storeData);
-        const parsedAddrData = parseCSV(addrData, true);
+            // 10단위별 허용된 수 조건 적용
+            if (rangeCounts.some(count => count > rangeLimit)) {
+                return false;
+            }
 
-        // 매칭되는 데이터가 제대로 있는지 확인하기 위한 디버깅 로그 추가
-        console.log('Parsed Store Data:', parsedStoreData);
-        console.log('Parsed Address Data:', parsedAddrData);
+            return true;
+        }
 
-        // 마커를 저장할 레이어 그룹 생성
-        const markerLayer = L.layerGroup().addTo(map);
+        // 연속된 숫자 최대 개수를 계산하는 함수
+        function getMaxConsecutive(numbers) {
+            let maxConsecutive = 1;
+            let currentConsecutive = 1;
 
-        function updateMarkers() {
-            markerLayer.clearLayers();  // 기존 마커 제거
-            const bounds = map.getBounds();  // 현재 보이는 범위 가져오기
-            const zoom = map.getZoom();  // 현재 확대 수준 가져오기
-
-            if (zoom >= 12) {  // 확대 수준이 12 이상일 때만 마커 표시
-                const aggregatedData = {};  // 상호명별로 데이터를 합침
-
-                Object.keys(parsedStoreData).forEach(round => {
-                    parsedStoreData[round].forEach(store => {
-                        if (!aggregatedData[store.name]) {
-                            aggregatedData[store.name] = { rounds: [], category: store.category, address: store.address };
-                        }
-                        aggregatedData[store.name].rounds.push(round);
-                    });
-                });
-
-                Object.keys(aggregatedData).forEach(storeName => {
-                    const storeInfo = aggregatedData[storeName];
-                    const addrInfo = parsedAddrData[storeName];
-
-                    if (addrInfo && bounds.contains([addrInfo.lat, addrInfo.lon])) {
-                        const coords = [addrInfo.lat, addrInfo.lon];
-                        const marker = L.marker(coords).addTo(markerLayer);
-
-                        // 모든 회차와 구분 정보를 하나의 팝업 내용으로 합침
-                        const popupContent = `
-                            <b>${storeName}</b><br>
-                            ${storeInfo.rounds.map(round => `${round}회 (${storeInfo.category})`).join('<br>')}<br>
-                            ${storeInfo.address}
-                        `;
-                        marker.bindPopup(popupContent);
+            for (let i = 1; i < numbers.length; i++) {
+                if (numbers[i] === numbers[i - 1] + 1) {
+                    currentConsecutive++;
+                } else {
+                    if (currentConsecutive > maxConsecutive) {
+                        maxConsecutive = currentConsecutive;
                     }
-                });
-            } else {
-                markerLayer.clearLayers();  // 확대 수준이 11 이하일 때 모든 마커 제거
+                    currentConsecutive = 1;
+                }
             }
+
+            return Math.max(maxConsecutive, currentConsecutive);
         }
 
-        map.on('moveend', updateMarkers);  // 지도 이동/확대가 끝난 후 마커 업데이트
-        updateMarkers();  // 초기 마커 설정
-    } catch (error) {
-        console.error('Error fetching or processing data:', error);
-    }
-}
+        // 10단위별 숫자 개수를 계산하는 함수
+        function getRangeCounts(numbers) {
+            let ranges = [0, 0, 0, 0, 0];
+            numbers.forEach(num => {
+                if (num <= 10) {
+                    ranges[0]++;
+                } else if (num <= 20) {
+                    ranges[1]++;
+                } else if (num <= 30) {
+                    ranges[2]++;
+                } else if (num <= 40) {
+                    ranges[3]++;
+                } else {
+                    ranges[4]++;
+                }
+            });
+            return ranges;
+        }
 
-// window.onload 이벤트 핸들러
-window.onload = function() {
-    // 사용자의 현재 위치를 가져오는 함수
-    navigator.geolocation.getCurrentPosition(initMap, error => {
-        console.error('Error fetching location:', error);
-        // 위치를 가져오지 못했을 때 기본 위치로 지도 초기화
-        initMap({ coords: { latitude: 37.5665, longitude: 126.9780 } });
+        // 번호 생성 및 필터링
+        let lottoNumbers;
+        do {
+            lottoNumbers = generateLottoNumbers();
+        } while (!filterNumbers(lottoNumbers));
+
+        // 홀짝 비율 계산
+        let oddCount = lottoNumbers.filter(num => num % 2 !== 0).length;
+        let evenCount = 6 - oddCount;
+
+        // 고저 비율 계산
+        let highCount = lottoNumbers.filter(num => num > 23).length;
+        let lowCount = 6 - highCount;
+
+        // 총합 계산
+        let sum = lottoNumbers.reduce((a, b) => a + b, 0);
+
+        // 현재 번호를 표시할 컨테이너
+        const displayNumbersContainer = document.getElementById('display-numbers');
+        const pastNumbersContainer = document.getElementById('numbers-list');
+
+        // 현재 번호를 새로운 div로 생성
+        const newCurrentNumbersDiv = document.createElement('div');
+        newCurrentNumbersDiv.className = 'numbers-row';
+
+        // 추첨 횟수 증가
+        drawCount++;
+
+        // 추첨 횟수 레이블 추가
+        const drawLabel = document.createElement('div');
+        drawLabel.textContent = `${drawCount} 추첨`;
+        drawLabel.style.fontWeight = 'bold';
+        drawLabel.style.display = 'inline-block';
+        drawLabel.style.width = '70px';
+        newCurrentNumbersDiv.appendChild(drawLabel);
+
+        // 생성된 로또 번호를 div 요소에 추가
+        lottoNumbers.forEach(num => {
+            const numDiv = document.createElement('div');
+            numDiv.className = 'number-box';
+            numDiv.textContent = num;
+            numDiv.style.backgroundColor = getColorForNumber(num);
+            newCurrentNumbersDiv.appendChild(numDiv);
+        });
+
+        // 정보 표시
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'info-row';
+        infoDiv.textContent = `홀짝 비율: ${oddCount} : ${evenCount}, 고저 비율: ${highCount} : ${lowCount}, 총합: ${sum}`;
+        displayNumbersContainer.insertBefore(infoDiv, displayNumbersContainer.firstChild);
+        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
+
+        // 과거 번호를 "생성된 번호" 영역으로 이동
+        if (displayNumbersContainer.children.length > 2) {
+            Array.from(displayNumbersContainer.children).slice(2).forEach(child => {
+                pastNumbersContainer.appendChild(child);
+            });
+        }
     });
+});
 
-    fetchData('../CSV/lottowinnerstores.csv').then(data => {
-        const parsedData = parseCSV(data);
-        const rounds = Object.keys(parsedData).sort((a, b) => b - a); // 중복 제거 및 정렬
-        const roundSelect = document.getElementById('round-select');
-
-        rounds.forEach(round => {
-            const option = document.createElement('option');
-            option.value = round;
-            option.textContent = round;
-            roundSelect.appendChild(option);
-        });
-
-        document.getElementById('round-go').addEventListener('click', function() {
-            const selectedRound = roundSelect.value;
-            displayLottoWinners(parsedData[selectedRound], selectedRound);
-        });
-
-        displayLottoWinners(parsedData[rounds[0]], rounds[0]);
-    }).catch(error => console.error('Error processing data:', error));
-};
-
-// 당첨자 목록을 표시하는 함수
-function displayLottoWinners(stores, round) {
-    const container = document.getElementById('lotto-winner-container');
-    container.innerHTML = '';
-
-    const table = document.createElement('table');
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>구분</th>
-                <th>상호명</th>
-                <th>소재지</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${stores.map(store => `
-                <tr>
-                    <td class="category">${store.category}</td>
-                    <td class="name">${store.name}</td>
-                    <td class="address">${store.address}</td>
-                </tr>
-            `).join('')}
-        </tbody>
-    `;
-    container.appendChild(table);
+// 번호에 따른 배경색 결정 함수
+function getColorForNumber(number) {
+    if (number <= 10) {
+        return '#FBC400'; // Yellow
+    } else if (number <= 20) {
+        return '#69C8F2'; // Blue
+    } else if (number <= 30) {
+        return '#FF7272'; // Red
+    } else if (number <= 40) {
+        return '#AAAAAA'; // Grey
+    } else {
+        return '#B0D840'; // Green
+    }
 }
