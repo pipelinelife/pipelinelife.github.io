@@ -1,0 +1,5 @@
+lottowinnerstores.csv 파일 생성
+excelfirststart.py 실행(상호명,소재지 2개를 분리해서 생성) → lottowinnerstores_name_address_corrected.xlsx 생성됨
+excelfinalstart.py 실행(중복된 상호명 제거, 한개만 남김) → lottowinnerstores_name_address_deduped_final.xlsx 생성됨
+http://geobigdata.go.kr/portal/(국토교통부 공간빅데이터 분석플래폼)에서 lottowinnerstores_name_address_deduped_final.xlsx을 지오코딩(로그인 후 사용가능) → lottowinnerstores_addr.csv 생성
+lottowinnerstores_addr.csv을 CSV폴더에 저장
