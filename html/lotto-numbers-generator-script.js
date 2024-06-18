@@ -6,10 +6,18 @@ document.addEventListener('DOMContentLoaded', function() {
         loadCSVData('../CSV/lotto_number_frequency_combined.CSV', function(data) {
             const probabilities = calculateProbabilities(data, conditions);
             let lottoNumbers;
+            let attempts = 0;
+            const maxAttempts = 10000; // 최대 시도 횟수 설정
             do {
                 lottoNumbers = generateLottoNumbers(probabilities);
-            } while (!filterNumbers(lottoNumbers, conditions));
-            displayLottoNumbers(lottoNumbers);
+                attempts++;
+            } while (!filterNumbers(lottoNumbers, conditions) && attempts < maxAttempts);
+
+            if (attempts >= maxAttempts) {
+                alert('번호를 생성하는데 실패했습니다. 조건을 다시 설정해주세요.');
+            } else {
+                displayLottoNumbers(lottoNumbers);
+            }
         });
     });
 
