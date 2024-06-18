@@ -3,21 +3,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('generate-btn').addEventListener('click', function() {
         const conditions = getConditions();
-        let lottoNumbers;
-        do {
-            lottoNumbers = generateLottoNumbers();
-        } while (!filterNumbers(lottoNumbers, conditions));
-
-        displayLottoNumbers(lottoNumbers);
+        loadCSVData('../CSV/lotto_number_frequency_combined.CSV', function(data) {
+            const probabilities = calculateProbabilities(data, conditions);
+            let lottoNumbers;
+            do {
+                lottoNumbers = generateLottoNumbers(probabilities);
+            } while (!filterNumbers(lottoNumbers, conditions));
+            displayLottoNumbers(lottoNumbers);
+        });
     });
 
     function getConditions() {
         return {
-            frequencyAll: document.getElementById('frequency-all').value,
-            frequency100: document.getElementById('frequency-100').value,
-            frequency20: document.getElementById('frequency-20').value,
-            frequency5: document.getElementById('frequency-5').value,
-            frequency1: document.getElementById('frequency-1').value,
+            frequencyAll: parseFloat(document.getElementById('frequency-all').value),
+            frequency100: parseFloat(document.getElementById('frequency-100').value),
+            frequency20: parseFloat(document.getElementById('frequency-20').value),
+            frequency5: parseFloat(document.getElementById('frequency-5').value),
+            frequency1: parseFloat(document.getElementById('frequency-1').value),
             oddEvenChecked: document.getElementById('odd-even').checked,
             highLowChecked: document.getElementById('high-low').checked,
             sumMin: parseInt(document.getElementById('sum-min').value),
@@ -27,10 +29,54 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    function generateLottoNumbers() {
+    function loadCSVData(filePath, callback) {
+        fetch(filePath)
+            .then(response => response.text())
+            .then(data => {
+                const parsedData = Papa.parse(data, { header: true }).data;
+                callback(parsedData);
+            })
+            .catch(error => console.error('Error loading CSV data:', error));
+    }
+
+    function calculateProbabilities(data, conditions) {
+        const probabilities = new Array(45).fill(0);
+        let totalProbability = 0;
+
+        data.forEach(row => {
+            const number = parseInt(row.Number);
+            const frequencyAll = parseFloat(row.FrequencyAll);
+            const frequency100 = parseFloat(row.Frequency100);
+            const frequency20 = parseFloat(row.Frequency20);
+            const frequency5 = parseFloat(row.Frequency5);
+            const frequency1 = parseFloat(row.Frequency1);
+
+            const probability = (frequencyAll * conditions.frequencyAll) +
+                                (frequency100 * conditions.frequency100) +
+                                (frequency20 * conditions.frequency20) +
+                                (frequency5 * conditions.frequency5) +
+                                (frequency1 * conditions.frequency1);
+
+            probabilities[number - 1] = probability;
+            totalProbability += probability;
+        });
+
+        return probabilities.map(probability => probability / totalProbability);
+    }
+
+    function generateLottoNumbers(probabilities) {
         const lottoNumbers = new Set();
         while (lottoNumbers.size < 6) {
-            lottoNumbers.add(Math.floor(Math.random() * 45) + 1);
+            const randomValue = Math.random();
+            let cumulativeProbability = 0;
+
+            for (let i = 0; i < probabilities.length; i++) {
+                cumulativeProbability += probabilities[i];
+                if (randomValue < cumulativeProbability) {
+                    lottoNumbers.add(i + 1);
+                    break;
+                }
+            }
         }
         return Array.from(lottoNumbers).sort((a, b) => a - b);
     }
