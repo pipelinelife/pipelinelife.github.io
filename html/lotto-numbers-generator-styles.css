@@ -228,13 +228,13 @@ header {
 
 .probability-table {
     width: 100%;
-    max-width: 600px;
+    max-width: 400px;
     margin: 0 auto;
     border-collapse: collapse;
 }
 
 .probability-cell {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 6px;
     text-align: center;
 }
