@@ -3,43 +3,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('generate-btn').addEventListener('click', function() {
         const conditions = getConditions();
-        loadCSVData('../CSV/lotto_number_frequency_combined.CSV', function(data) {
-            const probabilities = calculateProbabilities(data, conditions);
-            let lottoNumbers;
-            let attempts = 0;
-            const maxAttempts = 10000; // 최대 시도 횟수 설정
-            do {
-                lottoNumbers = generateLottoNumbers(probabilities);
-                attempts++;
-            } while (!filterNumbers(lottoNumbers, conditions) && attempts < maxAttempts);
+        let lottoNumbers;
+        do {
+            lottoNumbers = generateLottoNumbers();
+        } while (!filterNumbers(lottoNumbers, conditions));
 
-            if (attempts >= maxAttempts) {
-                alert('번호를 생성하는데 실패했습니다. 조건을 다시 설정해주세요.');
-            } else {
-                displayLottoNumbers(lottoNumbers);
-            }
-        });
-    });
-
-    document.getElementById('tooltip-icon').addEventListener('mouseover', function(event) {
-        const conditions = getConditions();
-        loadCSVData('../CSV/lotto_number_frequency_combined.CSV', function(data) {
-            const probabilities = calculateProbabilities(data, conditions);
-            displayProbabilities(probabilities, event);
-        });
-    });
-
-    document.getElementById('tooltip-icon').addEventListener('mouseout', function() {
-        document.getElementById('tooltip').style.display = 'none';
+        displayLottoNumbers(lottoNumbers);
     });
 
     function getConditions() {
         return {
-            frequencyAll: parseFloat(document.getElementById('frequency-all').value),
-            frequency100: parseFloat(document.getElementById('frequency-100').value),
-            frequency20: parseFloat(document.getElementById('frequency-20').value),
-            frequency5: parseFloat(document.getElementById('frequency-5').value),
-            frequency1: parseFloat(document.getElementById('frequency-1').value),
+            frequencyAll: document.getElementById('frequency-all').value,
+            frequency100: document.getElementById('frequency-100').value,
+            frequency20: document.getElementById('frequency-20').value,
+            frequency5: document.getElementById('frequency-5').value,
+            frequency1: document.getElementById('frequency-1').value,
             oddEvenChecked: document.getElementById('odd-even').checked,
             highLowChecked: document.getElementById('high-low').checked,
             sumMin: parseInt(document.getElementById('sum-min').value),
@@ -49,54 +27,10 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    function loadCSVData(filePath, callback) {
-        fetch(filePath)
-            .then(response => response.text())
-            .then(data => {
-                const parsedData = Papa.parse(data, { header: true }).data;
-                callback(parsedData);
-            })
-            .catch(error => console.error('Error loading CSV data:', error));
-    }
-
-    function calculateProbabilities(data, conditions) {
-        const probabilities = new Array(45).fill(0);
-        let totalProbability = 0;
-
-        data.forEach(row => {
-            const number = parseInt(row.Number);
-            const frequencyAll = parseFloat(row.FrequencyAll);
-            const frequency100 = parseFloat(row.Frequency100);
-            const frequency20 = parseFloat(row.Frequency20);
-            const frequency5 = parseFloat(row.Frequency5);
-            const frequency1 = parseFloat(row.Frequency1);
-
-            const probability = (frequencyAll * conditions.frequencyAll) +
-                                (frequency100 * conditions.frequency100) +
-                                (frequency20 * conditions.frequency20) +
-                                (frequency5 * conditions.frequency5) +
-                                (frequency1 * conditions.frequency1);
-
-            probabilities[number - 1] = probability;
-            totalProbability += probability;
-        });
-
-        return probabilities.map(probability => probability / totalProbability);
-    }
-
-    function generateLottoNumbers(probabilities) {
+    function generateLottoNumbers() {
         const lottoNumbers = new Set();
         while (lottoNumbers.size < 6) {
-            const randomValue = Math.random();
-            let cumulativeProbability = 0;
-
-            for (let i = 0; i < probabilities.length; i++) {
-                cumulativeProbability += probabilities[i];
-                if (randomValue < cumulativeProbability) {
-                    lottoNumbers.add(i + 1);
-                    break;
-                }
-            }
+            lottoNumbers.add(Math.floor(Math.random() * 45) + 1);
         }
         return Array.from(lottoNumbers).sort((a, b) => a - b);
     }
@@ -191,19 +125,5 @@ document.addEventListener('DOMContentLoaded', function() {
         if (number <= 30) return '#FF7272';
         if (number <= 40) return '#AAAAAA';
         return '#B0D840';
-    }
-
-    function displayProbabilities(probabilities, event) {
-        const tooltip = document.getElementById('tooltip');
-        tooltip.style.display = 'block';
-        tooltip.style.left = `${event.clientX}px`;
-        tooltip.style.top = `${event.clientY}px`;
-
-        let content = '<strong>번호별 확률:</strong><br>';
-        probabilities.forEach((prob, index) => {
-            content += `번호 ${index + 1}: ${(prob * 100).toFixed(2)}%<br>`;
-        });
-
-        tooltip.innerHTML = content;
     }
 });
