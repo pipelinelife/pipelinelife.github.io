@@ -214,3 +214,14 @@ header {
     text-align: left;
     margin-bottom: 5px;
 }
+
+.probability-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.probability-item {
+    flex: 1;
+    text-align: center;
+}
