@@ -70,12 +70,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const probabilityList = document.getElementById('probability-list');
         probabilityList.innerHTML = '';
 
+        const table = document.createElement('table');
+        table.className = 'probability-table';
+
+        let row;
         probabilities.forEach((prob, index) => {
-            const listItem = document.createElement('div');
-            listItem.textContent = `번호 ${index + 1}: ${(prob * 100).toFixed(2)}%`;
-            probabilityList.appendChild(listItem);
+            if (index % 3 === 0) {
+                row = document.createElement('tr');
+                table.appendChild(row);
+            }
+
+            const cell = document.createElement('td');
+            cell.className = 'probability-cell';
+            cell.textContent = `번호 ${index + 1}: ${(prob * 100).toFixed(2)}%`;
+
+            row.appendChild(cell);
         });
+
+        probabilityList.appendChild(table);
     }
+
 
     function generateLottoNumbers() {
         const lottoNumbers = new Set();
