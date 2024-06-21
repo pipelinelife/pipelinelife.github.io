@@ -21,6 +21,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    document.getElementById('tooltip-icon').addEventListener('mouseover', function() {
+        const conditions = getConditions();
+        loadCSVData('../CSV/lotto_number_frequency_combined.CSV', function(data) {
+            const probabilities = calculateProbabilities(data, conditions);
+            displayProbabilities(probabilities);
+        });
+    });
+
+    document.getElementById('tooltip-icon').addEventListener('mouseout', function() {
+        document.getElementById('tooltip').style.display = 'none';
+    });
+
     function getConditions() {
         return {
             frequencyAll: parseFloat(document.getElementById('frequency-all').value),
@@ -179,5 +191,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (number <= 30) return '#FF7272';
         if (number <= 40) return '#AAAAAA';
         return '#B0D840';
+    }
+
+    function displayProbabilities(probabilities) {
+        const tooltip = document.getElementById('tooltip');
+        tooltip.style.display = 'block';
+        tooltip.style.left = `${event.clientX}px`;
+        tooltip.style.top = `${event.clientY}px`;
+
+        let content = '<strong>번호별 확률:</strong><br>';
+        probabilities.forEach((prob, index) => {
+            content += `번호 ${index + 1}: ${(prob * 100).toFixed(2)}%<br>`;
+        });
+
+        tooltip.innerHTML = content;
     }
 });
