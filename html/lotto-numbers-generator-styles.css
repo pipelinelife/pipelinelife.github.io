@@ -202,3 +202,15 @@ header {
     margin-left: 5px;
 }
 {}
+
+#probabilities {
+    margin-top: 20px;
+    background-color: white;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#probability-list div {
+    text-align: left;
+    margin-bottom: 5px;
+}
