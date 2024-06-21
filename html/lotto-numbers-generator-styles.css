@@ -226,15 +226,3 @@ header {
     text-align: center;
 }
 
-.probability-table {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-    border-collapse: collapse;
-}
-
-.probability-cell {
-    border: 1px solid #ddd;
-    padding: 6px;
-    text-align: center;
-}
