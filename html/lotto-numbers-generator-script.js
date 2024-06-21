@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.text())
             .then(data => {
                 const parsedData = Papa.parse(data, { header: true }).data;
+                console.log(parsedData); // 디버깅: 로드된 CSV 데이터 출력
                 const conditions = getConditions();
                 const probabilities = calculateProbabilities(parsedData, conditions);
                 displayProbabilities(probabilities);
@@ -59,6 +60,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const frequency20 = parseFloat(row['출현 횟수 020']);
             const frequency5 = parseFloat(row['출현 횟수 005']);
             const frequency1 = parseFloat(row['출현 횟수 001']);
+
+            if (isNaN(number) || isNaN(frequencyAll) || isNaN(frequency100) || isNaN(frequency20) || isNaN(frequency5) || isNaN(frequency1)) {
+                console.error('Invalid data:', row);
+                return;
+            }
 
             const probability = (frequencyAll * conditions.frequencyAll) +
                                 (frequency100 * conditions.frequency100) +
