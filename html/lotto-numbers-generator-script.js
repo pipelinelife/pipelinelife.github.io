@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     let drawCount = 0; // 추첨 횟수를 저장할 변수 초기화
-    let probabilities = [];
+    let probabilities = []; // 확률 저장 변수 추가
 
     // CSV 데이터 로드 및 확률 계산
     function loadCSVAndCalculateProbabilities() {
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     document.getElementById('generate-btn').addEventListener('click', function() {
-        updateProbabilitiesAndDisplay();
+        loadCSVAndCalculateProbabilities();
         const conditions = getConditions();
         let lottoNumbers;
         let attempts = 0;
@@ -38,17 +38,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 조건 변경 시 확률 업데이트
-    document.querySelectorAll('#frequency-all, #frequency-100, #frequency-20, #frequency-5, #frequency-1')
-        .forEach(input => input.addEventListener('input', updateProbabilitiesAndDisplay));
-
-    function updateProbabilitiesAndDisplay() {
-        const conditions = getConditions();
-        const parsedData = Papa.parse(document.getElementById('csv-data').value, { header: true }).data;
-        parsedData = parsedData.filter(row => row['번호'] !== undefined && row['번호'].trim() !== '');
-        probabilities = calculateProbabilities(parsedData, conditions);
-        displayProbabilities(probabilities);
-    }
+    // 조건 설정 필드에 이벤트 리스너 추가
+    document.querySelectorAll('#frequency-all, #frequency-100, #frequency-20, #frequency-5, #frequency-1').forEach(input => {
+        input.addEventListener('input', () => {
+            const conditions = getConditions();
+            probabilities = calculateProbabilities(parsedData, conditions);
+            displayProbabilities(probabilities);
+        });
+    });
 
     function getConditions() {
         return {
@@ -221,21 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return '#B0D840';
     }
 
-    // 확률 창을 토글하는 기능 추가
-    const toggleProbabilityBtn = document.createElement('button');
-    toggleProbabilityBtn.textContent = '번호별 확률 보기';
-    toggleProbabilityBtn.addEventListener('click', function() {
-        const probabilityList = document.getElementById('probability-list');
-        if (probabilityList.style.display === 'none' || probabilityList.style.display === '') {
-            probabilityList.style.display = 'block';
-            toggleProbabilityBtn.textContent = '번호별 확률 숨기기';
-        } else {
-            probabilityList.style.display = 'none';
-            toggleProbabilityBtn.textContent = '번호별 확률 보기';
-        }
-    });
-    document.body.insertBefore(toggleProbabilityBtn, document.getElementById('probability-list'));
-
     // 페이지 로드 시 초기 확률 표시
     loadCSVAndCalculateProbabilities();
 });
+
