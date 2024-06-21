@@ -6,8 +6,12 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('../CSV/lotto_number_frequency_combined.csv') // 파일 경로 수정
             .then(response => response.text())
             .then(data => {
-                const parsedData = Papa.parse(data, { header: true }).data;
+                let parsedData = Papa.parse(data, { header: true }).data;
                 console.log('Parsed Data:', parsedData); // 디버깅: 로드된 CSV 데이터 출력
+
+                // 빈 행 제거
+                parsedData = parsedData.filter(row => row['번호'] !== undefined && row['번호'].trim() !== '');
+
                 const conditions = getConditions();
                 const probabilities = calculateProbabilities(parsedData, conditions);
                 displayProbabilities(probabilities);
