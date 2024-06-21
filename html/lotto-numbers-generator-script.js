@@ -102,11 +102,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const probabilityList = document.getElementById('probability-list');
         probabilityList.innerHTML = '';
 
+        let rowDiv = document.createElement('div');
+        rowDiv.className = 'probability-row';
+
         probabilities.forEach((prob, index) => {
-            const listItem = document.createElement('div');
+            const listItem = document.createElement('span');
+            listItem.className = 'probability-item';
             listItem.textContent = `번호 ${index + 1}: ${(prob * 100).toFixed(2)}%`;
-            probabilityList.appendChild(listItem);
+
+            rowDiv.appendChild(listItem);
+
+            if ((index + 1) % 3 === 0) {
+                probabilityList.appendChild(rowDiv);
+                rowDiv = document.createElement('div');
+                rowDiv.className = 'probability-row';
+            }
         });
+
+        if (rowDiv.children.length > 0) {
+            probabilityList.appendChild(rowDiv);
+        }
     }
 
     function generateLottoNumbers(probabilities) {
@@ -166,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const infoDiv = createInfoDiv(lottoNumbers);
 
         displayNumbersContainer.insertBefore(infoDiv, displayNumbersContainer.firstChild);
-        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
+                displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
 
         if (displayNumbersContainer.children.length > 2) {
             Array.from(displayNumbersContainer.children).slice(2).forEach(child => {
@@ -221,4 +236,3 @@ document.addEventListener('DOMContentLoaded', function() {
     // 페이지 로드 시 초기 확률 표시
     loadCSVAndCalculateProbabilities();
 });
-
