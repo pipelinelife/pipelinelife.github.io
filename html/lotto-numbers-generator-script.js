@@ -21,11 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    document.getElementById('tooltip-icon').addEventListener('mouseover', function() {
+    document.getElementById('tooltip-icon').addEventListener('mouseover', function(event) {
         const conditions = getConditions();
         loadCSVData('../CSV/lotto_number_frequency_combined.CSV', function(data) {
             const probabilities = calculateProbabilities(data, conditions);
-            displayProbabilities(probabilities);
+            displayProbabilities(probabilities, event);
         });
     });
 
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return '#B0D840';
     }
 
-    function displayProbabilities(probabilities) {
+    function displayProbabilities(probabilities, event) {
         const tooltip = document.getElementById('tooltip');
         tooltip.style.display = 'block';
         tooltip.style.left = `${event.clientX}px`;
