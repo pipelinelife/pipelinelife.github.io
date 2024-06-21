@@ -20,7 +20,8 @@
         <a href="lotto-winner-stores.html">1등 배출점</a>
     </div>
     <div id="condition-form">
-        <h3>조건 설정</h3>
+        <h3>조건 설정 <span id="tooltip-icon">[?]</span></h3>
+        <div id="tooltip" class="tooltip"></div>
         <div class="left">
             <div>
                 <label for="frequency-all">출현빈도 전체:</label>
@@ -115,6 +116,7 @@
         <h2>생성된 번호</h2>
         <div id="numbers-list"></div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="lotto-numbers-generator-script.js"></script>
 </body>
 </html>
