@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.text())
             .then(data => {
                 const parsedData = Papa.parse(data, { header: true }).data;
-                console.log(parsedData); // 디버깅: 로드된 CSV 데이터 출력
+                console.log('Parsed Data:', parsedData); // 디버깅: 로드된 CSV 데이터 출력
                 const conditions = getConditions();
                 const probabilities = calculateProbabilities(parsedData, conditions);
                 displayProbabilities(probabilities);
@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let totalProbability = 0;
 
         data.forEach(row => {
+            console.log('Processing Row:', row); // 디버깅: 각 행 데이터 출력
             const number = parseInt(row['번호']);
             const frequencyAll = parseFloat(row['출현 횟수 전체']);
             const frequency100 = parseFloat(row['출현 횟수 100']);
