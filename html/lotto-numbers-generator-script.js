@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // CSV 데이터 로드 및 확률 계산
     function loadCSVAndCalculateProbabilities() {
-        fetch('../CSV/lotto_number_frequency_combined.CSV')
+        fetch('../CSV/lotto_number_frequency_combined.csv') // 파일 경로 수정
             .then(response => response.text())
             .then(data => {
                 const parsedData = Papa.parse(data, { header: true }).data;
