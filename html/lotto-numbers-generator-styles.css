@@ -213,6 +213,10 @@ header {
 #probability-list div {
     text-align: left;
     margin-bottom: 5px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border-collapse: collapse;
 }
 
 .probability-row {
