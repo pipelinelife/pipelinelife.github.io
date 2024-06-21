@@ -1,164 +1,182 @@
-// 데이터를 fetch하는 함수
-async function fetchData(url) {
-    const response = await fetch(url);
-    const data = await response.text();
-    return data;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    let drawCount = 0; // 추첨 횟수를 저장할 변수 초기화
 
-// CSV 데이터를 파싱하는 함수
-function parseCSV(data, hasCoordinates = false) {
-    const rows = data.split('\n').slice(1);
-    const results = {};
-
-    rows.forEach((row, index) => {
-        const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => col.replace(/^"|"$/g, '').trim());
-        if (hasCoordinates && columns.length >= 6) {
-            const [name, addr, geocoding, lon, lat, ...rest] = columns;
-            if (!results[name]) {
-                results[name] = { lon: parseFloat(lon), lat: parseFloat(lat) };
-            }
-        } else if (!hasCoordinates && columns.length >= 4) {
-            const [round, name, category, address, ...rest] = columns;
-            if (!results[round]) {
-                results[round] = [];
-            }
-            results[round].push({ name, category, address });
-        } else {
-            console.error(`Invalid data at line ${index + 2}: ${row}`);
-            console.log('Expected more columns, but got:', columns.length, columns);
-        }
-    });
-
-    return results;
-}
-
-// Leaflet 지도를 초기화하는 함수
-async function initMap(position) {
-    const { latitude, longitude } = position.coords; // 현재 위치의 위도와 경도 가져오기
-
-    // 현재 위치를 중심으로 지도 초기화
-    const map = L.map('map').setView([latitude, longitude], 12);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // 주소 데이터와 상호명 데이터를 fetch
-    try {
-        const [storeData, addrData] = await Promise.all([
-            fetchData('../CSV/lottowinnerstores.csv'),
-            fetchData('../CSV/lottowinnerstores_addr.csv')
-        ]);
-
-        const parsedStoreData = parseCSV(storeData);
-        const parsedAddrData = parseCSV(addrData, true);
-
-        // 매칭되는 데이터가 제대로 있는지 확인하기 위한 디버깅 로그 추가
-        console.log('Parsed Store Data:', parsedStoreData);
-        console.log('Parsed Address Data:', parsedAddrData);
-
-        // 마커를 저장할 레이어 그룹 생성
-        const markerLayer = L.layerGroup().addTo(map);
-
-        function updateMarkers() {
-            markerLayer.clearLayers();  // 기존 마커 제거
-            const bounds = map.getBounds();  // 현재 보이는 범위 가져오기
-            const zoom = map.getZoom();  // 현재 확대 수준 가져오기
-
-            if (zoom >= 12) {  // 확대 수준이 12 이상일 때만 마커 표시
-                const aggregatedData = {};  // 상호명별로 데이터를 합침
-
-                Object.keys(parsedStoreData).forEach(round => {
-                    parsedStoreData[round].forEach(store => {
-                        if (!aggregatedData[store.name]) {
-                            aggregatedData[store.name] = { rounds: [], category: store.category, address: store.address };
-                        }
-                        aggregatedData[store.name].rounds.push(round);
-                    });
-                });
-
-                Object.keys(aggregatedData).forEach(storeName => {
-                    const storeInfo = aggregatedData[storeName];
-                    const addrInfo = parsedAddrData[storeName];
-
-                    if (addrInfo && bounds.contains([addrInfo.lat, addrInfo.lon])) {
-                        const coords = [addrInfo.lat, addrInfo.lon];
-                        const marker = L.marker(coords).addTo(markerLayer);
-
-                        // 모든 회차와 구분 정보를 하나의 팝업 내용으로 합침
-                        const popupContent = `
-                            <b>${storeName}</b><br>
-                            ${storeInfo.rounds.map(round => `${round}회 (${storeInfo.category})`).join('<br>')}<br>
-                            ${storeInfo.address}
-                        `;
-                        marker.bindPopup(popupContent);
-                    }
-                });
-            } else {
-                markerLayer.clearLayers();  // 확대 수준이 11 이하일 때 모든 마커 제거
-            }
-        }
-
-        map.on('moveend', updateMarkers);  // 지도 이동/확대가 끝난 후 마커 업데이트
-        updateMarkers();  // 초기 마커 설정
-    } catch (error) {
-        console.error('Error fetching or processing data:', error);
+    // CSV 데이터 로드 및 확률 계산
+    function loadCSVAndCalculateProbabilities() {
+        fetch('../CSV/lotto_number_frequency_combined.CSV')
+            .then(response => response.text())
+            .then(data => {
+                const parsedData = Papa.parse(data, { header: true }).data;
+                const conditions = getConditions();
+                const probabilities = calculateProbabilities(parsedData, conditions);
+                displayProbabilities(probabilities);
+            })
+            .catch(error => console.error('Error loading CSV data:', error));
     }
-}
 
-// window.onload 이벤트 핸들러
-window.onload = function() {
-    // 사용자의 현재 위치를 가져오는 함수
-    navigator.geolocation.getCurrentPosition(initMap, error => {
-        console.error('Error fetching location:', error);
-        // 위치를 가져오지 못했을 때 기본 위치로 지도 초기화
-        initMap({ coords: { latitude: 37.5665, longitude: 126.9780 } });
+    document.getElementById('generate-btn').addEventListener('click', function() {
+        loadCSVAndCalculateProbabilities();
+        const conditions = getConditions();
+        let lottoNumbers;
+        do {
+            lottoNumbers = generateLottoNumbers();
+        } while (!filterNumbers(lottoNumbers, conditions));
+
+        displayLottoNumbers(lottoNumbers);
     });
 
-    fetchData('../CSV/lottowinnerstores.csv').then(data => {
-        const parsedData = parseCSV(data);
-        const rounds = Object.keys(parsedData).sort((a, b) => b - a); // 중복 제거 및 정렬
-        const roundSelect = document.getElementById('round-select');
+    function getConditions() {
+        return {
+            frequencyAll: parseFloat(document.getElementById('frequency-all').value),
+            frequency100: parseFloat(document.getElementById('frequency-100').value),
+            frequency20: parseFloat(document.getElementById('frequency-20').value),
+            frequency5: parseFloat(document.getElementById('frequency-5').value),
+            frequency1: parseFloat(document.getElementById('frequency-1').value),
+            oddEvenChecked: document.getElementById('odd-even').checked,
+            highLowChecked: document.getElementById('high-low').checked,
+            sumMin: parseInt(document.getElementById('sum-min').value),
+            sumMax: parseInt(document.getElementById('sum-max').value),
+            consecutiveLimit: parseInt(document.getElementById('consecutive').value),
+            rangeLimit: parseInt(document.getElementById('range').value),
+        };
+    }
 
-        rounds.forEach(round => {
-            const option = document.createElement('option');
-            option.value = round;
-            option.textContent = round;
-            roundSelect.appendChild(option);
+    function calculateProbabilities(data, conditions) {
+        const probabilities = new Array(45).fill(0);
+        let totalProbability = 0;
+
+        data.forEach(row => {
+            const number = parseInt(row.Number);
+            const frequencyAll = parseFloat(row.FrequencyAll);
+            const frequency100 = parseFloat(row.Frequency100);
+            const frequency20 = parseFloat(row.Frequency20);
+            const frequency5 = parseFloat(row.Frequency5);
+            const frequency1 = parseFloat(row.Frequency1);
+
+            const probability = (frequencyAll * conditions.frequencyAll) +
+                                (frequency100 * conditions.frequency100) +
+                                (frequency20 * conditions.frequency20) +
+                                (frequency5 * conditions.frequency5) +
+                                (frequency1 * conditions.frequency1);
+
+            probabilities[number - 1] = probability;
+            totalProbability += probability;
         });
 
-        document.getElementById('round-go').addEventListener('click', function() {
-            const selectedRound = roundSelect.value;
-            displayLottoWinners(parsedData[selectedRound], selectedRound);
+        return probabilities.map(probability => probability / totalProbability);
+    }
+
+    function displayProbabilities(probabilities) {
+        const probabilityList = document.getElementById('probability-list');
+        probabilityList.innerHTML = '';
+
+        probabilities.forEach((prob, index) => {
+            const listItem = document.createElement('div');
+            listItem.textContent = `번호 ${index + 1}: ${(prob * 100).toFixed(2)}%`;
+            probabilityList.appendChild(listItem);
+        });
+    }
+
+    function generateLottoNumbers() {
+        const lottoNumbers = new Set();
+        while (lottoNumbers.size < 6) {
+            lottoNumbers.add(Math.floor(Math.random() * 45) + 1);
+        }
+        return Array.from(lottoNumbers).sort((a, b) => a - b);
+    }
+
+    function filterNumbers(numbers, conditions) {
+        const oddCount = numbers.filter(num => num % 2 !== 0).length;
+        const highCount = numbers.filter(num => num > 23).length;
+        const sum = numbers.reduce((a, b) => a + b, 0);
+        const maxConsecutive = getMaxConsecutive(numbers);
+        const rangeCounts = getRangeCounts(numbers);
+
+        return !(
+            (conditions.oddEvenChecked && (oddCount === 0 || oddCount === 6)) ||
+            (conditions.highLowChecked && (highCount === 0 || highCount === 6)) ||
+            (sum < conditions.sumMin || sum > conditions.sumMax) ||
+            (maxConsecutive > conditions.consecutiveLimit) ||
+            (rangeCounts.some(count => count > conditions.rangeLimit))
+        );
+    }
+
+    function getMaxConsecutive(numbers) {
+        let maxConsecutive = 1, currentConsecutive = 1;
+        for (let i = 1; i < numbers.length; i++) {
+            currentConsecutive = (numbers[i] === numbers[i - 1] + 1) ? currentConsecutive + 1 : 1;
+            maxConsecutive = Math.max(maxConsecutive, currentConsecutive);
+        }
+        return maxConsecutive;
+    }
+
+    function getRangeCounts(numbers) {
+        const ranges = Array(5).fill(0);
+        numbers.forEach(num => ranges[Math.floor((num - 1) / 10)]++);
+        return ranges;
+    }
+
+    function displayLottoNumbers(lottoNumbers) {
+        drawCount++;
+        const displayNumbersContainer = document.getElementById('display-numbers');
+        const pastNumbersContainer = document.getElementById('numbers-list');
+
+        const newCurrentNumbersDiv = createNumbersDiv(lottoNumbers, drawCount);
+        const infoDiv = createInfoDiv(lottoNumbers);
+
+        displayNumbersContainer.insertBefore(infoDiv, displayNumbersContainer.firstChild);
+        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
+
+        if (displayNumbersContainer.children.length > 2) {
+            Array.from(displayNumbersContainer.children).slice(2).forEach(child => {
+                pastNumbersContainer.appendChild(child);
+            });
+        }
+    }
+
+    function createNumbersDiv(lottoNumbers, drawCount) {
+        const div = document.createElement('div');
+        div.className = 'numbers-row';
+
+        const drawLabel = document.createElement('div');
+        drawLabel.textContent = `${drawCount} 추첨`;
+        drawLabel.style.fontWeight = 'bold';
+        drawLabel.style.display = 'inline-block';
+        drawLabel.style.width = '70px';
+        div.appendChild(drawLabel);
+
+        lottoNumbers.forEach(num => {
+            const numDiv = document.createElement('div');
+            numDiv.className = 'number-box';
+            numDiv.textContent = num;
+            numDiv.style.backgroundColor = getColorForNumber(num);
+            div.appendChild(numDiv);
         });
 
-        displayLottoWinners(parsedData[rounds[0]], rounds[0]);
-    }).catch(error => console.error('Error processing data:', error));
-};
+        return div;
+    }
 
-// 당첨자 목록을 표시하는 함수
-function displayLottoWinners(stores, round) {
-    const container = document.getElementById('lotto-winner-container');
-    container.innerHTML = '';
+    function createInfoDiv(lottoNumbers) {
+        const oddCount = lottoNumbers.filter(num => num % 2 !== 0).length;
+        const evenCount = 6 - oddCount;
+        const highCount = lottoNumbers.filter(num => num > 23).length;
+        const lowCount = 6 - highCount;
+        const sum = lottoNumbers.reduce((a, b) => a + b, 0);
 
-    const table = document.createElement('table');
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>구분</th>
-                <th>상호명</th>
-                <th>소재지</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${stores.map(store => `
-                <tr>
-                    <td class="category">${store.category}</td>
-                    <td class="name">${store.name}</td>
-                    <td class="address">${store.address}</td>
-                </tr>
-            `).join('')}
-        </tbody>
-    `;
-    container.appendChild(table);
-}
+        const div = document.createElement('div');
+        div.className = 'info-row';
+        div.textContent = `홀짝 비율: ${oddCount} : ${evenCount}, 고저 비율: ${highCount} : ${lowCount}, 총합: ${sum}`;
+        return div;
+    }
+
+    function getColorForNumber(number) {
+        if (number <= 10) return '#FBC400';
+        if (number <= 20) return '#69C8F2';
+        if (number <= 30) return '#FF7272';
+        if (number <= 40) return '#AAAAAA';
+        return '#B0D840';
+    }
+
+    // 페이지 로드 시 초기 확률 표시
+    loadCSVAndCalculateProbabilities();
+});
