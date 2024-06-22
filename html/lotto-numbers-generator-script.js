@@ -47,6 +47,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    document.getElementById('toggle-probability-btn').addEventListener('click', function() {
+        const probabilityList = document.getElementById('probability-list');
+        probabilityList.classList.toggle('collapsed');
+    });
+
     function getConditions() {
         return {
             frequencyAll: parseFloat(document.getElementById('frequency-all').value),
@@ -181,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const infoDiv = createInfoDiv(lottoNumbers);
 
         displayNumbersContainer.insertBefore(infoDiv, displayNumbersContainer.firstChild);
-                displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
+        displayNumbersContainer.insertBefore(newCurrentNumbersDiv, displayNumbersContainer.firstChild);
 
         if (displayNumbersContainer.children.length > 2) {
             Array.from(displayNumbersContainer.children).slice(2).forEach(child => {
@@ -232,23 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (number <= 40) return '#AAAAAA';
         return '#B0D840';
     }
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        const toggleButton = document.getElementById('toggle-probabilities');
-        const probabilityContent = document.getElementById('probability-content');
 
-        toggleButton.addEventListener('click', () => {
-            if (probabilityContent.style.display === 'none') {
-                probabilityContent.style.display = 'block';
-                toggleButton.textContent = '접기';
-            } else {
-                probabilityContent.style.display = 'none';
-                toggleButton.textContent = '펼치기';
-            }
-         }   
-            probabilityContent.style.display = 'block';
-        }
     // 페이지 로드 시 초기 확률 표시
     loadCSVAndCalculateProbabilities();
 });
-
