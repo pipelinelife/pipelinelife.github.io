@@ -43,8 +43,9 @@ body, html {
 @media only screen and (max-width: 768px) {
     table {
         width: 100%; /* 화면 너비에 맞춤 */
-        min-width: 400px; /* 최소 너비 설정 */
-        table-layout: fixed; /* 테이블 레이아웃을 고정시켜 열 너비가 일정하게 유지되도록 함 */
+        min-width: 350px; /* 최소 너비 설정 */
+        max-width: 600px;
+        margin: auto; /* 중앙 정렬 */
     }
 
     .rank-header {
