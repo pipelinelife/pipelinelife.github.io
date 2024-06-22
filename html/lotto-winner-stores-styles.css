@@ -65,6 +65,12 @@ table {
     }
 }
 
+/* 테이블 헤더 및 셀 스타일 */
+@media screen and (min-width: 600px) {
+    th, td {
+        min-width: 200px; /* 최소 너비 설정 */
+    }
+}
 
 /* 테이블 헤더 및 셀 스타일 */
 th, td {

@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     let drawCount = 0; // 추첨 횟수를 저장할 변수 초기화
     let probabilities = []; // 확률 저장 변수 추가
+    let parsedData = []; // CSV 데이터를 저장할 전역 변수 추가
 
     // CSV 데이터 로드 및 확률 계산
     function loadCSVAndCalculateProbabilities() {
         fetch('../CSV/lotto_number_frequency_combined.csv') // 파일 경로 수정
             .then(response => response.text())
             .then(data => {
-                let parsedData = Papa.parse(data, { header: true }).data;
+                parsedData = Papa.parse(data, { header: true }).data;
                 console.log('Parsed Data:', parsedData); // 디버깅: 로드된 CSV 데이터 출력
 
                 // 빈 행 제거
@@ -21,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     document.getElementById('generate-btn').addEventListener('click', function() {
-        loadCSVAndCalculateProbabilities();
         const conditions = getConditions();
         let lottoNumbers;
         let attempts = 0;
@@ -51,6 +51,49 @@ document.addEventListener('DOMContentLoaded', function() {
         const probabilityList = document.getElementById('probability-list');
         probabilityList.classList.toggle('collapsed');
     });
+
+    document.getElementById('preset-1').addEventListener('click', function() {
+        setPreset(1);
+    });
+
+    document.getElementById('preset-2').addEventListener('click', function() {
+        setPreset(2);
+    });
+
+    document.getElementById('preset-3').addEventListener('click', function() {
+        setPreset(3);
+    });
+
+    function setPreset(presetNumber) {
+        const frequencyAll = document.getElementById('frequency-all');
+        const frequency100 = document.getElementById('frequency-100');
+        const frequency20 = document.getElementById('frequency-20');
+        const frequency5 = document.getElementById('frequency-5');
+        const frequency1 = document.getElementById('frequency-1');
+
+        if (presetNumber === 1) {
+            frequencyAll.value = 1;
+            frequency100.value = 15;
+            frequency20.value = 5;
+            frequency5.value = 10;
+            frequency1.value = -200;
+        } else if (presetNumber === 2) {
+            frequencyAll.value = 2;
+            frequency100.value = 30;
+            frequency20.value = 5;
+            frequency5.value = 5;
+            frequency1.value = -200;
+        } else if (presetNumber === 3) {
+            frequencyAll.value = 1;
+            frequency100.value = 30;
+            frequency20.value = 150;
+            frequency5.value = 200;
+            frequency1.value = 300;
+        }
+        const conditions = getConditions();
+        probabilities = calculateProbabilities(parsedData, conditions);
+        displayProbabilities(probabilities);
+    }
 
     function getConditions() {
         return {
@@ -107,6 +150,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const probabilityList = document.getElementById('probability-list');
         probabilityList.innerHTML = '';
 
+        let maxProbability = Math.max(...probabilities);
+        let minProbability = Math.min(...probabilities);
+
         let rowDiv = document.createElement('div');
         rowDiv.className = 'probability-row';
 
@@ -114,6 +160,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const listItem = document.createElement('span');
             listItem.className = 'probability-item';
             listItem.textContent = `번호 ${index + 1}: ${(prob * 100).toFixed(2)}%`;
+
+            let normalizedProb = (prob - minProbability) / (maxProbability - minProbability);
+            let redIntensity = Math.round(normalizedProb * 255);
+            listItem.style.background = `rgba(${redIntensity}, 0, 0, ${normalizedProb})`;
 
             rowDiv.appendChild(listItem);
 
