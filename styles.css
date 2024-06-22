@@ -60,6 +60,10 @@ body, html {
         width: 30%; /* 당첨게임 수 열 기본 값 유지 */
     }
 
+    .category {
+        width: 10px;
+    }
+    
     th, td {
         white-space: nowrap; /* 셀 내용 줄바꿈 방지 */
         overflow: hidden; /* 내용이 넘칠 경우 숨김 */
