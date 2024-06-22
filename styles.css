@@ -60,8 +60,16 @@ body, html {
         width: 30%; /* 당첨게임 수 열 기본 값 유지 */
     }
 
-    .category {
-        width: 10px;
+    .category-header {
+        width: 10%; /* 순위 열 너비 줄임 */
+    }
+
+    .store-header {
+        width: 40%; /* 1게임당 당첨금액 열 너비 늘림 */
+    }
+
+    .address-header {
+        width: 50%; /* 당첨게임 수 열 기본 값 유지 */
     }
     
     th, td {
