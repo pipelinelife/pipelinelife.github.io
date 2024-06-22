@@ -232,7 +232,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (number <= 40) return '#AAAAAA';
         return '#B0D840';
     }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleButton = document.getElementById('toggle-probabilities');
+        const probabilityContent = document.getElementById('probability-content');
 
+        toggleButton.addEventListener('click', () => {
+            if (probabilityContent.style.display === 'none') {
+                probabilityContent.style.display = 'block';
+                toggleButton.textContent = '접기';
+            } else {
+                probabilityContent.style.display = 'none';
+                toggleButton.textContent = '펼치기';
+            }
+         }   
+            probabilityContent.style.display = 'block';
+        }
     // 페이지 로드 시 초기 확률 표시
     loadCSVAndCalculateProbabilities();
 });
+
