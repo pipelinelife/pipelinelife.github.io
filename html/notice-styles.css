@@ -1,0 +1,243 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+
+.top-nav, .top-nav a, header, #lotto-generator, #generate-btn, #display-numbers, #past-numbers, .number-box {
+    margin-bottom: 10px;
+}
+
+.top-nav {
+    background-color: #f4f4f4;
+    padding: 5px 0;
+    text-align: center;
+}
+
+.top-nav a {
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+}
+
+.top-nav a.active, .top-nav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+#lotto-generator {
+    text-align: center;
+    padding: 20px;
+}
+
+#generate-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    width: 200px;
+    margin: auto;
+}
+
+
+.lotto-past-row {
+    margin-bottom: 10px;
+    background: #F4F4F4;
+    padding: 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.lotto-past-number, .lotto-past-bonus {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+}
+
+.lotto-past-number {
+    background-color: #4CAF50;
+}
+
+.lotto-past-bonus {
+    background-color: #FF9800;
+}
+
+#condition-form {
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #ffffff;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    max-width: 700px;
+    margin: auto;
+}
+
+#condition-form h3 {
+    width: 100%;
+    text-align: center;
+    margin-top: 0;
+}
+
+#condition-form .left, #condition-form .right {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+}
+
+#condition-form .right {
+    margin-left: 1%;
+}
+
+#condition-form div {
+    margin: 2px 0;
+    display: flex;
+    align-items: center;
+}
+
+#condition-form label {
+    width: 140px;
+    margin-right: 5px;
+}
+
+#condition-form input, #condition-form select {
+    width: 100px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+@media (max-width: 600px) {
+    #condition-form {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    #condition-form .left, #condition-form .right {
+        width: 100%;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    #condition-form div {
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    #condition-form label {
+        width: auto;
+        text-align: left;
+    }
+
+    #condition-form input, #condition-form select {
+        width: 35%;
+        max-width: 150px;
+        text-align: center;
+    }
+
+    #generate-btn {
+        width: 100%;
+        max-width: 300px;
+        margin-top: 20px;
+    }
+}
+
+.small-text {
+    color: red;
+    font-size: 12px;
+    margin-left: 5px;
+}
+
+#probabilities {
+    margin-top: 20px;
+    background-color: white;
+    padding: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+#probabilities h3 {
+    margin-right: 10px;
+    margin-bottom: 0; /* 필요에 따라 여백 조정 */
+}
+
+#probability-list div {
+    text-align: left;
+    margin-bottom: 5px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+.probability-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.probability-item {
+    flex: 1;
+    text-align: center;
+    background: linear-gradient(to right, red, transparent);
+    color: black; /* 글자 색상 변경 */
+    font-weight: bold; /* 글자 두께 변경 */
+    padding: 5px;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+#toggle-probability-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#probability-list.collapsed {
+    display: none;
+}
+
+.buttons {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.buttons button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    margin: 5px;
+}
