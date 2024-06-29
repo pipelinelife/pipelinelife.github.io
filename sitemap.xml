@@ -19,55 +19,55 @@ layout: null
                 <loc>https://pipelinelife.github.io/html/lotto-numbers-analysis</loc>
                 <lastmod>2024-06-29</lastmod>
                 <changefreq>daily</changefreq>
-                <priority>1.0</priority>
+                <priority>0.5</priority>
         </url>
         <url>
                 <loc>https://pipelinelife.github.io/html/lotto-numbers-analysis001</loc>
                 <lastmod>2024-06-29</lastmod>
                 <changefreq>daily</changefreq>
-                <priority>1.0</priority>
+                <priority>0.3</priority>
         </url>
         <url>
                 <loc>https://pipelinelife.github.io/html/lotto-numbers-analysis005</loc>
                 <lastmod>2024-06-29</lastmod>
                 <changefreq>daily</changefreq>
-                <priority>1.0</priority>
+                <priority>0.3</priority>
         </url>
         <url>
                 <loc>https://pipelinelife.github.io/html/lotto-numbers-analysis020</loc>
                 <lastmod>2024-06-29</lastmod>
                 <changefreq>daily</changefreq>
-                <priority>1.0</priority>
+                <priority>0.3</priority>
         </url>
         <url>
                 <loc>https://pipelinelife.github.io/html/lotto-numbers-analysis100</loc>
                 <lastmod>2024-06-29</lastmod>
                 <changefreq>daily</changefreq>
-                <priority>1.0</priority>
+                <priority>0.3</priority>
         </url>
         <url>
                 <loc>https://pipelinelife.github.io/html/lotto-numbers-generator</loc>
                 <lastmod>2024-06-29</lastmod>
                 <changefreq>daily</changefreq>
-                <priority>1.0</priority>
+                <priority>0.8</priority>
         </url>
         <url>
                 <loc>https://pipelinelife.github.io/html/lotto-winner-stores</loc>
                 <lastmod>2024-06-29</lastmod>
                 <changefreq>daily</changefreq>
-                <priority>1.0</priority>
+                <priority>0.7</priority>
         </url>
         <url>
                 <loc>https://pipelinelife.github.io/html/notice</loc>
                 <lastmod>2024-06-29</lastmod>
                 <changefreq>daily</changefreq>
-                <priority>1.0</priority>
+                <priority>0.5</priority>
         </url>
         <url>
                 <loc>https://pipelinelife.github.io/html/past-lotto-numbers</loc>
                 <lastmod>2024-06-29</lastmod>
                 <changefreq>daily</changefreq>
-                <priority>1.0</priority>
+                <priority>0.5</priority>
         </url>
   <!-- 추가 페이지 URL들 -->
 </urlset>
