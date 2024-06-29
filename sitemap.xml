@@ -1,73 +1,34 @@
 ---
 layout: null
 ---
+
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-        <url>
-                <loc>https://pipelinelife.github.io/</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>1.0</priority>
-        </url>
-        <url>
-                <loc>https://pipelinelife.github.io/index</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>1.0</priority>
-        </url>
-        <url>
-                <loc>https://pipelinelife.github.io/html/lotto-numbers-analysis</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>0.5</priority>
-        </url>
-        <url>
-                <loc>https://pipelinelife.github.io/html/lotto-numbers-analysis001</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>0.3</priority>
-        </url>
-        <url>
-                <loc>https://pipelinelife.github.io/html/lotto-numbers-analysis005</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>0.3</priority>
-        </url>
-        <url>
-                <loc>https://pipelinelife.github.io/html/lotto-numbers-analysis020</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>0.3</priority>
-        </url>
-        <url>
-                <loc>https://pipelinelife.github.io/html/lotto-numbers-analysis100</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>0.3</priority>
-        </url>
-        <url>
-                <loc>https://pipelinelife.github.io/html/lotto-numbers-generator</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>0.8</priority>
-        </url>
-        <url>
-                <loc>https://pipelinelife.github.io/html/lotto-winner-stores</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>0.7</priority>
-        </url>
-        <url>
-                <loc>https://pipelinelife.github.io/html/notice</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>0.5</priority>
-        </url>
-        <url>
-                <loc>https://pipelinelife.github.io/html/past-lotto-numbers</loc>
-                <lastmod>2024-06-29</lastmod>
-                <changefreq>daily</changefreq>
-                <priority>0.5</priority>
-        </url>
-  <!-- 추가 페이지 URL들 -->
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" 
+        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  {% for page in site.pages %}
+    {% if page.layout == "post" %}
+      <url>
+        <loc>{{ site.url }}/html/{{ page.path | replace: '.md', '.html' }}</loc>
+        {% if page.lastmod == null %}
+          <lastmod>{{ page.date | date: "%Y-%m-%d" }}</lastmod>
+        {% else %}
+          <lastmod>{{ page.lastmod | date: "%Y-%m-%d" }}</lastmod>
+        {% endif %}
+
+        {% if page.sitemap.changefreq == null %}
+          <changefreq>daily</changefreq>
+        {% else %}
+          <changefreq>{{ page.sitemap.changefreq }}</changefreq>
+        {% endif %}
+
+        {% if page.sitemap.priority == null %}
+            <priority>0.5</priority>
+        {% else %}
+          <priority>{{ page.sitemap.priority }}</priority>
+        {% endif %}
+
+      </url>
+    {% endif %}
+  {% endfor %}
 </urlset>
