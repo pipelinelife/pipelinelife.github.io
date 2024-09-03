@@ -2,5 +2,5 @@ lottowinnerstores.csv 파일 생성
 현재 폴더 주소창에 cmd 엔터
 python excelfirststart.py 실행(상호명,소재지 2개를 분리해서 생성) → lottowinnerstores_name_address_corrected.xlsx 생성됨
 python excelfinalstart.py 실행(중복된 상호명 제거, 한개만 남김) → lottowinnerstores_name_address_deduped_final.xlsx 생성됨
-http://geobigdata.go.kr/portal/(국토교통부 공간빅데이터 분석플래폼)에서 lottowinnerstores_name_address_deduped_final.xlsx을 지오코딩(1행 상호명, 소재지 영어로 변경 / 경도,위도를 ion,lat으로 변경 / 로그인 후 사용가능) → lottowinnerstores_addr.csv 생성
+http://geobigdata.go.kr/portal/(국토교통부 공간빅데이터 분석플래폼 / 로그인 후 사용가능)에서 lottowinnerstores_name_address_deduped_final.xlsx을 지오코딩(1행 상호명(a), 소재지(b) 영어로 변경 / 지오코딩 칼럼 b 선 / 경도,위도를 ion,lat으로 변경 ) → lottowinnerstores_addr.csv 생성
 lottowinnerstores_addr.csv을 CSV폴더에 저장
