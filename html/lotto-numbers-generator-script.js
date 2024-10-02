@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
             frequency100.value = 15;
             frequency20.value = 5;
             frequency5.value = 10;
-            frequency1.value = -200;
+            frequency1.value = -300;
         } else if (presetNumber === 2) {
             frequencyAll.value = 2;
             frequency100.value = 30;
