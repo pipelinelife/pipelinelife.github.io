@@ -6,6 +6,8 @@ https://pipelinelife.github.io/
 
 현재 로또 자동 추첨기를 개발중입니다.
 
+※ 로또 구매사이트 : https://dhlottery.co.kr/
+
 -----------추가 예정-----------
 
 1등 배출점 주소 클릭시 지도 위치로 이동
