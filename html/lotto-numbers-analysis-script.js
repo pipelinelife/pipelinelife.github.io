@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const oddEvenRatiosContainer = document.getElementById('odd-even-ratios');
     const highLowRatiosContainer = document.getElementById('high-low-ratios');
     const sumRangesContainer = document.getElementById('sum-ranges');
-    const csvUrl = '../CSV/lotto_number_frequency_combined.csv'; // GitHub Raw URL로 변경
+    const csvUrl = '../CSV/lottoRes.csv'; // GitHub Raw URL
 
     fetch(csvUrl)
         .then(response => response.text())
@@ -18,12 +18,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 '181 ~ 200': 0, '201 ~ 220': 0, '221 ~ 240': 0, '241 ~ 260': 0
             };
 
-            rows.forEach((row, index) => {
-                // 첫 번째 행은 헤더이므로 건너뛴다.
-                if(index === 0) return;
-                
+            rows.forEach(row => {
                 const cols = row.split(',');
-                const nums = cols.slice(1, cols.length).map(Number); // 필요한 번호만 추출
+                const nums = cols.slice(2, 8).map(Number); // 필요한 번호만 추출
                 numbers.push(...nums);
 
                 // 홀짝 비율
