@@ -8,3 +8,5 @@
 .advertisement{max-width:1104px;margin:0 auto 28px;text-align:center;min-height:50px}
 
 .map-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}.map-actions .button{padding:9px 16px}.winner-marker span{display:grid;place-items:center;width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#214735;border:2px solid white;color:white;box-shadow:0 2px 5px #0005;font-weight:800;font-size:12px}.winner-marker span{border-radius:50%;transform:none}.win-count{color:#315d3b;font-size:12px}.leaflet-popup-content details{max-height:140px;overflow:auto;margin-top:8px}
+
+.generated-game{border-bottom:1px dashed #b6c2a7;padding-bottom:12px}.generated-game .ticket-row{border-bottom:0}.historical-empty{font-size:11px;color:var(--muted);margin:0 0 0 28px}.historical-matches{margin-left:28px}.historical-matches p{margin:0 0 8px;padding:9px 12px;background:#fff9e6;border:1px solid #dbbe6a;border-radius:7px;font-size:12px}.historical-matches strong{display:block;color:#715415}.historical-matches span{color:var(--muted);font-size:11px}

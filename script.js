@@ -144,7 +144,21 @@ function randomIndex(length) {
   do { crypto.getRandomValues(bytes); } while(bytes[0] >= limit);
   return bytes[0] % length;
 }
+function findHistoricalMatches(game, draws) {
+  const numbers = new Set(game);
+  return draws.flatMap(draw => {
+    const matched = draw.numbers.filter(number => numbers.has(number)).length;
+    const rank = matched === 6 ? 1 : matched === 5 && numbers.has(draw.bonus) ? 2 : null;
+    return rank ? [{round:draw.round,date:draw.date,rank}] : [];
+  }).sort((a,b)=>b.round-a.round);
+}
+function historicalMatchHTML(game) {
+  const matches = findHistoricalMatches(game,data.draws);
+  if (!matches.length) return '<p class="historical-empty">역대 1·2등 번호 일치 없음</p>';
+  return `<div class="historical-matches">${matches.map(match=>`<p><strong>${match.rank}등 번호 일치</strong><span>제 ${match.round}회 · ${escapeHTML(match.date)}</span></p>`).join('')}</div>`;
+}
 function generateGames() {
+  if (!data?.draws?.length) { $('generator-message').textContent='당첨 데이터를 불러온 뒤 다시 시도해주세요.'; return; }
   const fixed = [...selected].filter(([,state]) => state === 1).map(([n]) => n);
   const pool = Array.from({length:45},(_,i)=>i+1).filter(n => !selected.has(n));
   if (fixed.length > 6 || pool.length + fixed.length < 6) { $('generator-message').textContent = '고정 번호는 6개 이하, 사용 가능한 번호는 6개 이상으로 선택해주세요.'; return; }
@@ -153,8 +167,8 @@ function generateGames() {
     while(game.length < 6) game.push(available.splice(randomIndex(available.length),1)[0]);
     return game.sort((a,b)=>a-b);
   });
-  $('generated-numbers').innerHTML = generated.map((game,index) => `<div class="ticket-row"><span>${String.fromCharCode(65+index)}</span><div class="balls">${game.map(ball).join('')}</div></div>`).join('');
-  $('copy-numbers').disabled = false;$('generator-message').textContent = `${generated.length}게임을 만들었습니다.`;
+  $('generated-numbers').innerHTML = generated.map((game,index) => `<div class="generated-game"><div class="ticket-row"><span>${String.fromCharCode(65+index)}</span><div class="balls">${game.map(ball).join('')}</div></div>${historicalMatchHTML(game)}</div>`).join('');
+  $('copy-numbers').disabled = false;$('generator-message').textContent = `${generated.length}게임 생성 · 1~${data.round}회 1·2등 번호 비교 완료`;
 }
 for(let n=1;n<=45;n++) {
   const button = document.createElement('button');
