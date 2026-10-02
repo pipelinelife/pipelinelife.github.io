@@ -6,6 +6,20 @@ const ball = value => `<span class="ball ${value <= 10 ? 'yellow' : value <= 20 
 const balls = draw => draw.numbers.map(ball).join('') + `<span class="plus" aria-label="보너스">+</span><span class="bonus">${ball(draw.bonus)}<small>보너스</small></span>`;
 let data, historyLimit = 30, generated = [], map, markers, leafletPromise;
 let mapRenderVersion = 0;
+let storeTotals = new Map(), userPosition, userMarker, userAccuracy;
+let storeListLimit = 60;
+const storeKey = store => JSON.stringify([store.name.trim().replace(/\s+/g,' '),store.address.trim().replace(/\s+/g,' ')]);
+function aggregateStores(stores) {
+  const totals = new Map();
+  for (const store of stores) {
+    const key = storeKey(store), previous = totals.get(key);
+    if (previous) {
+      previous.winCount++; previous.rounds.add(store.round);
+      if (Number.isFinite(store.lat) && Number.isFinite(store.lon)) Object.assign(previous,{lat:store.lat,lon:store.lon,mapAddress:store.mapAddress});
+    } else totals.set(key,{...store,winCount:1,rounds:new Set([store.round]),category:'누적 당첨'});
+  }
+  return totals;
+}
 const selected = new Map();
 const knownPages = ['home','history','stores','analysis','generator','notice'];
 function route() {
@@ -24,7 +38,8 @@ function storeCard(store, index) {
   const address = escapeHTML(store.address);
   const online = store.address.includes('dhlottery.co.kr');
   const link = online ? 'https://www.dhlottery.co.kr' : `https://map.naver.com/p/search/${encodeURIComponent(store.address + ' ' + store.name)}`;
-  return `<article class="store-card"><div class="store-meta"><span>${String(index + 1).padStart(2,'0')} / ${online ? '온라인' : escapeHTML(store.address.trim().split(' ')[0])}</span><span>${escapeHTML(store.category)}</span></div><h3>${escapeHTML(store.name)}</h3><p>${address}</p><a target="_blank" rel="noopener" href="${link}" aria-label="${escapeHTML(store.name)} ${online ? '공식 사이트 보기' : '지도에서 보기'}">${online ? '공식 사이트 보기' : '지도에서 보기'} <span>↗</span></a></article>`;
+  const total = storeTotals.get(storeKey(store));
+  return `<article class="store-card"><div class="store-meta"><span>${String(index + 1).padStart(2,'0')} / ${online ? '온라인' : escapeHTML(store.address.trim().split(' ')[0])}</span><span>${escapeHTML(store.category)}</span></div><h3>${escapeHTML(store.name)}</h3><strong class="win-count">1등 누적 ${total?.winCount || 1}게임 · ${total?.rounds.size || 1}개 회차</strong><p>${address}</p><a target="_blank" rel="noopener" href="${link}" aria-label="${escapeHTML(store.name)} ${online ? '공식 사이트 보기' : '지도에서 보기'}">${online ? '공식 사이트 보기' : '지도에서 보기'} <span>↗</span></a></article>`;
 }
 function renderHome() {
   const latest = data.draws.at(-1);
@@ -54,9 +69,11 @@ function renderHistory() {
 }
 function renderStores() {
   const round = Number($('store-round').value), region = $('store-region').value, query = $('store-search').value.trim().toLocaleLowerCase();
-  const rows = data.stores.filter(store => store.round === round && (!region || (store.address.includes('dhlottery.co.kr') ? '온라인' : store.address.trim().split(' ')[0]) === region) && (!query || (store.name + store.address).toLocaleLowerCase().includes(query)));
-  $('store-summary').textContent = `${round}회 · ${rows.length}개 당첨 게임의 판매점`;
-  $('stores-list').innerHTML = rows.map(storeCard).join('') || '<p class="empty">검색 결과가 없습니다.</p>';
+  const source = round === 0 ? [...storeTotals.values()].sort((a,b)=>b.winCount-a.winCount) : data.stores.filter(store=>store.round===round);
+  const rows = source.filter(store => (!region || (store.address.includes('dhlottery.co.kr') ? '온라인' : store.address.trim().split(' ')[0]) === region) && (!query || (store.name + store.address).toLocaleLowerCase().includes(query)));
+  $('store-summary').textContent = round === 0 ? `전체 회차 · ${rows.length.toLocaleString('ko-KR')}개 판매점 · 누적 당첨 게임 수 순` : `${round}회 · ${rows.length}개 당첨 게임의 판매점`;
+  $('stores-list').innerHTML = rows.slice(0,storeListLimit).map(storeCard).join('') || '<p class="empty">검색 결과가 없습니다.</p>';
+  $('more-stores').hidden=rows.length<=storeListLimit;
   if (!$('stores').hidden) renderMap(rows, round);
 }
 async function renderMap(stores, round) {
@@ -65,7 +82,7 @@ async function renderMap(stores, round) {
   const offline = stores.filter(store => !store.address.includes('dhlottery.co.kr'));
   const missing = offline.filter(store => !locations.includes(store)).length;
   $('store-map').hidden = false;
-  $('map-note').textContent = `${round}회 · ${locations.length}개 당첨 게임의 판매점 위치${missing ? ` · 좌표 미확인 ${missing}개는 아래 지도 링크로 확인하세요.` : ''}${!offline.length ? ' · 표시할 오프라인 판매점이 없습니다.' : ''} 이동한 판매점은 지도에 현재 주소가 표시될 수 있습니다.`;
+  $('map-note').textContent = `${round ? round+'회' : '전체 회차'} · ${locations.length}개 위치 기록${missing ? ` · 좌표 미확인 ${missing}개는 아래 지도 링크로 확인하세요.` : ''}${!offline.length ? ' · 표시할 오프라인 판매점이 없습니다.' : ''} 핀을 누르면 누적 당첨 수와 회차를 볼 수 있습니다. 이동한 판매점은 현재 주소가 표시될 수 있습니다.`;
   try {
     if (!leafletPromise) leafletPromise = new Promise((resolve,reject)=>{
       const css = document.createElement('link'); css.rel='stylesheet';css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.append(css);
@@ -79,16 +96,40 @@ async function renderMap(stores, round) {
       markers=L.layerGroup().addTo(map);
     }
     markers.clearLayers();
-    const distinct = [...new Map(locations.map(point=>[point.name+'|'+point.address,point])).values()];
-    distinct.forEach(point=>L.marker([point.lat,point.lon]).addTo(markers).bindPopup(`<b>${escapeHTML(point.name)}</b><br>${escapeHTML(point.mapAddress || point.address)}${point.mapAddress && point.mapAddress !== point.address ? '<br><small>당첨 당시: '+escapeHTML(point.address)+'</small>' : ''}`));
+    const distinct = [...new Map(locations.map(point=>[storeKey(point),point])).values()];
+    distinct.forEach(point=>{
+      const total=storeTotals.get(storeKey(point)), count=total?.winCount || 1;
+      const icon=L.divIcon({className:'winner-marker',html:`<span>${count}</span>`,iconSize:[34,34],iconAnchor:[17,34]});
+      L.marker([point.lat,point.lon],{icon}).addTo(markers).bindPopup(`<b>${escapeHTML(point.name)}</b><br><strong>1등 누적 ${count}게임 · ${total?.rounds.size || 1}개 회차</strong><br>${escapeHTML(point.mapAddress || point.address)}${point.mapAddress && point.mapAddress !== point.address ? '<br><small>당첨 당시: '+escapeHTML(point.address)+'</small>' : ''}<details><summary>당첨 회차 보기</summary>${[...(total?.rounds || [point.round])].sort((a,b)=>b-a).map(n=>n+'회').join(', ')}</details>`);
+    });
     map.invalidateSize();
-    if (distinct.length) map.fitBounds(distinct.map(point=>[point.lat,point.lon]),{padding:[25,25],maxZoom:13});
+    if (userPosition) map.setView(userPosition,13);
+    else if (distinct.length) map.fitBounds(distinct.map(point=>[point.lat,point.lon]),{padding:[25,25],maxZoom:13});
     else map.setView([36.3,127.8],7);
   } catch {
     if (version !== mapRenderVersion) return;
     leafletPromise=undefined;
     $('map-note').textContent='지도를 불러오지 못했습니다. 판매점별 지도 링크를 이용해주세요.';
   }
+}
+function locateMe() {
+  const button=$('locate-me'), status=$('location-status');
+  if (!navigator.geolocation) { status.textContent='이 브라우저는 위치 확인을 지원하지 않습니다.'; return; }
+  if (!map) { status.textContent='지도를 불러온 뒤 다시 눌러주세요.'; return; }
+  button.disabled=true; status.textContent='현재 위치를 확인하고 있습니다…';
+  navigator.geolocation.getCurrentPosition(position=>{
+    button.disabled=false;
+    userPosition=[position.coords.latitude,position.coords.longitude];
+    if(userMarker) map.removeLayer(userMarker);
+    if(userAccuracy) map.removeLayer(userAccuracy);
+    userAccuracy=L.circle(userPosition,{radius:position.coords.accuracy,color:'#367ac3',weight:1,fillOpacity:.08}).addTo(map);
+    userMarker=L.circleMarker(userPosition,{radius:8,color:'white',weight:3,fillColor:'#367ac3',fillOpacity:1}).addTo(map).bindPopup('내 위치');
+    map.setView(userPosition,13);
+    status.textContent=`내 위치를 표시했습니다 · 오차 약 ${Math.round(position.coords.accuracy)}m`;
+  },error=>{
+    button.disabled=false;
+    status.textContent=error.code===1 ? '위치 권한이 허용되지 않았습니다. 브라우저 설정에서 위치를 허용한 뒤 다시 눌러주세요.' : error.code===3 ? '위치 확인 시간이 초과되었습니다. 다시 시도해주세요.' : '현재 위치를 확인하지 못했습니다. 위치 설정을 확인해주세요.';
+  },{enableHighAccuracy:true,timeout:10000,maximumAge:60000});
 }
 function renderAnalysis() {
   const period = Number($('analysis-period').value), rows = period ? data.draws.slice(-period) : data.draws;
@@ -130,8 +171,10 @@ $('generate').addEventListener('click',generateGames);
 $('copy-numbers').addEventListener('click',async()=>{try {await navigator.clipboard.writeText(generated.map(game=>game.join(', ')).join('\n'));$('generator-message').textContent='번호를 복사했습니다.';} catch {$('generator-message').textContent='복사할 수 없습니다. 표시된 번호를 직접 선택해 복사해주세요.';}});
 $('round-search').addEventListener('input',()=>{historyLimit=30;if(data)renderHistory();});
 $('more-history').addEventListener('click',()=>{historyLimit+=30;if(data)renderHistory();});
-['store-round','store-region'].forEach(id=>$(id).addEventListener('change',()=>{if(data)renderStores();}));
-$('store-search').addEventListener('input',()=>{if(data)renderStores();});
+['store-round','store-region'].forEach(id=>$(id).addEventListener('change',()=>{storeListLimit=60;if(data)renderStores();}));
+$('store-search').addEventListener('input',()=>{storeListLimit=60;if(data)renderStores();});
+$('more-stores').addEventListener('click',()=>{storeListLimit+=60;if(data)renderStores();});
+$('locate-me').addEventListener('click',locateMe);
 $('analysis-period').addEventListener('change',()=>{history.replaceState(null,'',`#analysis?period=${$('analysis-period').value}`);if(data)renderAnalysis();});
 async function load() {
   $('load-error').hidden=true;
@@ -140,9 +183,10 @@ async function load() {
     if(!response.ok) throw new Error('Snapshot unavailable');
     data = await response.json();
     if(!data.draws?.length || !data.stores || !data.prizes?.length || data.round !== data.draws.at(-1).round) throw new Error('Invalid snapshot');
+    storeTotals=aggregateStores(data.stores);
     data.draws.sort((a,b)=>a.round-b.round);renderHome();renderHistory();
     const rounds=[...new Set(data.stores.map(store=>store.round))].sort((a,b)=>b-a);
-    $('store-round').replaceChildren(...rounds.map(n=>new Option(`${n}회`,n)));
+    $('store-round').replaceChildren(new Option('전체 판매점 · 누적 1등','0'),...rounds.map(n=>new Option(`${n}회`,n)));
     const regions=[...new Set(data.stores.map(store=>store.address.includes('dhlottery.co.kr') ? '온라인' : store.address.trim().split(' ')[0]))].sort();
     $('store-region').replaceChildren(new Option('전국',''),...regions.map(region=>new Option(region,region)));
     renderStores();renderAnalysis();route();
