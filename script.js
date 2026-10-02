@@ -171,7 +171,17 @@ function metricText(game) {
 }
 function readGenerationConditions() {
   const value=id=>$(id).value.trim()==='' ? NaN : Number($(id).value);
-  return {oddEven:$('odd-even').checked,highLow:$('high-low').checked,odd:$('odd-ratio').value==='' ? null : value('odd-ratio'),high:$('high-ratio').value==='' ? null : value('high-ratio'),sumMin:value('sum-min'),sumMax:value('sum-max'),consecutive:value('consecutive'),range:value('range')};
+  const ratio=id=>$(id).value==='' ? null : $(id).value.includes('-') ? $(id).value.split('-').map(Number) : value(id);
+  return {oddEven:$('odd-even').checked,highLow:$('high-low').checked,odd:ratio('odd-ratio'),high:ratio('high-ratio'),sumMin:value('sum-min'),sumMax:value('sum-max'),consecutive:value('consecutive'),range:value('range')};
+}
+function ratioText(value,extreme) {
+  if(value===null) return extreme ? '극단 제외' : '제한 없음';
+  return Array.isArray(value) ? Array.from({length:value[1]-value[0]+1},(_,i)=>`${value[0]+i}:${6-value[0]-i}`).join(' / ') : `${value}:${6-value}`;
+}
+function applyBalancedConditions() {
+  $('odd-ratio').value='2-4';$('high-ratio').value='2-4';
+  $('sum-min').value=110;$('sum-max').value=170;
+  $('generator-message').textContent='홀짝·고저 각각 2:4 / 3:3 / 4:2, 합계 110~170을 적용했습니다. 번호 만들기를 누르면 생성합니다.';
 }
 function extractionWeights() {
   if($('weight-mode').value==='uniform') return Array(46).fill(1);
@@ -217,7 +227,7 @@ async function generateGames() {
     const conditions=readGenerationConditions(), weights=extractionWeights(),mode=$('weight-mode').value;
     const games=await LottoEngine.generate({conditions,fixed,pool,weights,count:Number($('game-count').value),random:()=>randomIndex(4294967296)/4294967296,yieldUI:()=>new Promise(resolve=>setTimeout(resolve,0))});
     generated=games;
-    const summary=`${mode==='uniform' ? '균등 무작위' : '빈도 가중치'} · 홀짝 ${conditions.odd===null ? (conditions.oddEven ? '극단 제외' : '제한 없음') : conditions.odd+':'+(6-conditions.odd)} · 고저 ${conditions.high===null ? (conditions.highLow ? '극단 제외' : '제한 없음') : conditions.high+':'+(6-conditions.high)} · 합계 ${conditions.sumMin}~${conditions.sumMax} · 연속 ≤${conditions.consecutive} · 구간별 ≤${conditions.range}`;
+    const summary=`${mode==='uniform' ? '균등 무작위' : '빈도 가중치'} · 홀짝 ${ratioText(conditions.odd,conditions.oddEven)} · 고저 ${ratioText(conditions.high,conditions.highLow)} · 합계 ${conditions.sumMin}~${conditions.sumMax} · 연속 ≤${conditions.consecutive} · 구간별 ≤${conditions.range}`;
     $('generated-numbers').innerHTML=`<p class="applied-conditions">적용 조건<br>${escapeHTML(summary)}</p>`+generated.map((game,index) => `<div class="generated-game"><div class="ticket-row"><span>${String.fromCharCode(65+index)}</span><div class="balls">${game.map(ball).join('')}</div></div><p class="game-metrics">${metricText(game)}</p>${historicalMatchHTML(game)}</div>`).join('');
     $('copy-numbers').disabled = false;$('generator-message').textContent = `${generated.length}게임 생성 · 모든 조건 충족 · 1~${data.round}회 1·2등 번호 비교 완료`;
   } catch(error) { $('generator-message').textContent=error.message+(generated.length ? ' 이전 생성 결과는 그대로 표시됩니다.' : ''); }
@@ -244,6 +254,7 @@ $('reset-conditions').addEventListener('click',()=>{
   $('sum-min').value=21;$('sum-max').value=255;$('consecutive').value=6;$('range').value=6;$('weight-mode').value='uniform';
   updateWeightPreview();$('generator-message').textContent='비율·합계·연속·구간 제한을 해제했습니다. 고정·제외 번호는 유지됩니다.';
 });
+$('balanced-conditions').addEventListener('click',applyBalancedConditions);
 $('generate').addEventListener('click',generateGames);
 $('copy-numbers').addEventListener('click',async()=>{try {await navigator.clipboard.writeText(generated.map(game=>game.join(', ')).join('\n'));$('generator-message').textContent='번호를 복사했습니다.';} catch {$('generator-message').textContent='복사할 수 없습니다. 표시된 번호를 직접 선택해 복사해주세요.';}});
 $('round-search').addEventListener('input',()=>{historyLimit=30;if(data)renderHistory();});
