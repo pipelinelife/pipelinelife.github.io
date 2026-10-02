@@ -1,18 +1,37 @@
-# lottonumber
+# 파이프인생 로또
 
-https://pipelinelife.github.io/
+동행복권 공식 데이터로 당첨번호, 1등 판매점, 당첨금과 번호별 기록을 제공하는 정적 웹사이트입니다. 별도의 유료 서버나 브라우저에 노출되는 API 키 없이 GitHub Pages에서 운영합니다.
 
-여기는 유튜브 파이프인생(pipelinelife, https://www.youtube.com/@pipelinelife )의 실험적인 공간입니다.
+## 운영 전환
 
-현재 로또 자동 추첨기를 개발중입니다.
+1. 이 변경안을 `main`에 적용합니다.
+2. Settings → Pages → Build and deployment → Source를 **GitHub Actions**로 설정합니다.
+3. Actions의 `Update official Lotto data`를 수동 실행해 수집·배포 성공을 확인합니다.
+4. 그다음 `lotto_CSV`의 유지보수 PR을 적용합니다. 기존 예약 작업을 제거하고 수동 유지보수만 남겨 오래된 데이터가 사이트에 덮어써지는 것을 막습니다.
+5. 기존 수집 코드에 직접 포함돼 있던 접근 토큰을 폐기합니다. 새 자동화는 해당 토큰을 필요로 하지 않습니다. 과거 Git 기록에는 토큰이 남으므로 현재 코드 삭제만으로 폐기된 것은 아닙니다.
 
-※ 로또 구매사이트 : https://dhlottery.co.kr/
+자동 수집: 토요일 21:17~23:47 KST에 30분 간격, 일요일 10:23 KST 추가 재시도. GitHub 예약 실행은 지연될 수 있습니다. 회차와 발표 날짜를 검증하고 누락 회차를 보충하며, 실패 시 기존 데이터를 유지하고 실행을 실패 처리합니다.
 
------------추가 예정-----------
+번호 → 판매점·당첨금 → 통계가 같은 작업에서 계산됩니다. 프런트엔드는 회차가 일치하는 `CSV/snapshot.json`을 읽습니다. 기존 CSV 형식도 유지합니다. 같은 판매점의 복수 당첨 게임은 삭제하지 않습니다. 최신 회차 지도에는 공식 좌표를 사용하며 상호명만으로 과거 좌표를 매칭하지 않습니다.
 
-1등 배출점 주소 클릭시 지도 위치로 이동
+공식 출처: https://www.dhlottery.co.kr/lt645/result 및 https://www.dhlottery.co.kr/wnprchsplcsrch/home . 조회 경로는 공식 사이트 내부 경로이며 버전이 보장되는 공개 API가 아니므로 변경 시 검증 단계가 실패하도록 설계했습니다.
 
-번호생성시 번호 제외, 고정
+## 로컬 실행 및 검증
 
-홈페이지 접속시 금주 추천번호 팝업창 생성
------------        -----------
+`python -m http.server 8765` 실행 후 http://localhost:8765 를 엽니다. HTML 파일을 직접 열면 데이터 요청이 제한될 수 있습니다.
+
+수집: `python tools/update_data.py`
+
+검증: `python -m unittest discover -s tools -p 'test_*.py'`, `python tools/check_snapshot.py`, `node --check script.js`
+
+## 도메인 연결
+
+도메인을 구매한 뒤 Settings → Pages → Custom domain에 도메인을 입력합니다. DNS는 GitHub Pages 공식 안내대로 설정하고 도메인 소유권을 검증한 뒤 HTTPS를 적용합니다. 도메인이 결정되면 `robots.txt`, `sitemap.xml`, OG 이미지 주소도 함께 변경합니다. 미정인 도메인의 CNAME 파일은 만들지 않습니다.
+
+안내: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site
+
+## 광고·분석
+
+기존 Google Tag Manager, AdSense 게시자 ID와 Kakao 광고 단위를 유지합니다. Kakao 광고는 주요 결과 아래 하단에 배치합니다. 도메인이 정해지면 게시자 계정의 사이트 등록 상태도 확인하세요.
+
+기존 `/html/` 주소는 새 화면으로 연결됩니다. 번호 통계는 과거 기록이며 번호 생성이 당첨 확률을 높이지 않습니다.
