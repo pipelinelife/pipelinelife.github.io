@@ -7,6 +7,24 @@ const base={oddEven:true,highLow:true,odd:null,high:null,sumMin:81,sumMax:200,co
 const uniform=Array(46).fill(1);
 let seed=345672;
 const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+test('Ratio ranges allow all three combinations and preset sum boundaries are inclusive',async()=>{
+  const conditions={...base,odd:[2,4],high:[2,4],sumMin:110,sumMax:170};
+  const odds=new Set(),highs=new Set();
+  for(let i=0;i<60;i++) {
+    const games=await engine.generate({conditions,fixed:[],pool,weights:uniform,count:10,random});
+    for(const game of games) {
+      const m=engine.metrics(game);
+      assert.ok(m.odd>=2&&m.odd<=4&&m.high>=2&&m.high<=4&&m.sum>=110&&m.sum<=170);
+      odds.add(m.odd);highs.add(m.high);
+    }
+  }
+  assert.deepEqual([...odds].sort(),[2,3,4]);assert.deepEqual([...highs].sort(),[2,3,4]);
+  for(const game of [[1,10,20,24,25,30],[10,20,23,30,42,45]]) assert.ok(engine.accepts(game,conditions));
+  assert.equal(engine.accepts([1,9,20,24,25,30],conditions),false);
+  assert.equal(engine.accepts([11,20,23,30,42,45],conditions),false);
+  for(const options of [{conditions:{...conditions,odd:[4,2]}},{conditions:{...conditions,high:[2,7]}},{fixed:[1,3,5,7,9]}])
+    await assert.rejects(engine.generate({conditions,fixed:[],weights:uniform,count:1,random,...options,pool:pool.filter(n=>!(options.fixed||[]).includes(n))}));
+});
 test('Metric boundaries match the original high/low, range and consecutive definitions',()=>{
   const m=engine.metrics([10,11,22,23,24,45]);
   assert.deepEqual(m,{odd:3,high:2,sum:135,consecutive:3,ranges:[1,1,3,0,1]});
