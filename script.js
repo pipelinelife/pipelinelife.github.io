@@ -8,6 +8,13 @@ let data, historyLimit = 30, generated = [], map, markers, leafletPromise;
 let mapRenderVersion = 0;
 let storeTotals = new Map(), userPosition, userMarker, userAccuracy;
 let storeListLimit = 60;
+let mapPoints = [], mapRound = 0, mapNote = '', markerSignature = '';
+const allStoresMinZoom = 13;
+function visibleStores(points, round, zoom, bounds) {
+  if (round !== 0) return points;
+  if (zoom < allStoresMinZoom) return [];
+  return points.filter(point => bounds.contains([point.lat, point.lon]));
+}
 const storeKey = store => JSON.stringify([store.name.trim().replace(/\s+/g,' '),store.address.trim().replace(/\s+/g,' ')]);
 function aggregateStores(stores) {
   const totals = new Map();
@@ -82,7 +89,8 @@ async function renderMap(stores, round) {
   const offline = stores.filter(store => !store.address.includes('dhlottery.co.kr'));
   const missing = offline.filter(store => !locations.includes(store)).length;
   $('store-map').hidden = false;
-  $('map-note').textContent = `${round ? round+'회' : '전체 회차'} · ${locations.length}개 위치 기록${missing ? ` · 좌표 미확인 ${missing}개는 아래 지도 링크로 확인하세요.` : ''}${!offline.length ? ' · 표시할 오프라인 판매점이 없습니다.' : ''} 핀을 누르면 누적 당첨 수와 회차를 볼 수 있습니다. 이동한 판매점은 현재 주소가 표시될 수 있습니다.`;
+  const note = `${round ? round+'회' : '전체 회차'} · ${locations.length}개 위치 기록${missing ? ` · 좌표 미확인 ${missing}개는 아래 지도 링크로 확인하세요.` : ''}${!offline.length ? ' · 표시할 오프라인 판매점이 없습니다.' : ''} 핀을 누르면 누적 당첨 수와 회차를 볼 수 있습니다. 이동한 판매점은 현재 주소가 표시될 수 있습니다.`;
+  $('map-note').textContent = note;
   try {
     if (!leafletPromise) leafletPromise = new Promise((resolve,reject)=>{
       const css = document.createElement('link'); css.rel='stylesheet';css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.append(css);
@@ -94,23 +102,35 @@ async function renderMap(stores, round) {
       map = L.map('store-map').setView([36.3,127.8],7);
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
       markers=L.layerGroup().addTo(map);
+      map.on('moveend', updateMapMarkers);
     }
-    markers.clearLayers();
     const distinct = [...new Map(locations.map(point=>[storeKey(point),point])).values()];
-    distinct.forEach(point=>{
-      const total=storeTotals.get(storeKey(point)), count=total?.winCount || 1;
-      const icon=L.divIcon({className:'winner-marker',html:`<span>${count}</span>`,iconSize:[34,34],iconAnchor:[17,34]});
-      L.marker([point.lat,point.lon],{icon}).addTo(markers).bindPopup(`<b>${escapeHTML(point.name)}</b><br><strong>1등 누적 ${count}게임 · ${total?.rounds.size || 1}개 회차</strong><br>${escapeHTML(point.mapAddress || point.address)}${point.mapAddress && point.mapAddress !== point.address ? '<br><small>당첨 당시: '+escapeHTML(point.address)+'</small>' : ''}<details><summary>당첨 회차 보기</summary>${[...(total?.rounds || [point.round])].sort((a,b)=>b-a).map(n=>n+'회').join(', ')}</details>`);
-    });
+    mapPoints=distinct; mapRound=round; mapNote=note; markerSignature='';
     map.invalidateSize();
     if (userPosition) map.setView(userPosition,13);
     else if (distinct.length) map.fitBounds(distinct.map(point=>[point.lat,point.lon]),{padding:[25,25],maxZoom:13});
     else map.setView([36.3,127.8],7);
+    updateMapMarkers();
   } catch {
     if (version !== mapRenderVersion) return;
     leafletPromise=undefined;
     $('map-note').textContent='지도를 불러오지 못했습니다. 판매점별 지도 링크를 이용해주세요.';
   }
+}
+function updateMapMarkers() {
+  if (!map || !markers) return;
+  const visible=visibleStores(mapPoints,mapRound,map.getZoom(),map.getBounds());
+  const hint=mapRound===0 && mapPoints.length ? (map.getZoom()<allStoresMinZoom ? '지도를 확대하면 1등 판매점이 표시됩니다. ' : `현재 화면의 1등 판매점 ${visible.length}곳 · 지도를 이동하면 주변 판매점을 볼 수 있습니다. `) : '';
+  $('map-note').textContent=hint+mapNote;
+  const signature=JSON.stringify([mapRound,visible.map(point=>[storeKey(point),point.lat,point.lon])]);
+  if (signature===markerSignature) return;
+  markerSignature=signature;
+  markers.clearLayers();
+  visible.forEach(point=>{
+      const total=storeTotals.get(storeKey(point)), count=total?.winCount || 1;
+      const icon=L.divIcon({className:'winner-marker',html:`<span>${count}</span>`,iconSize:[34,34],iconAnchor:[17,34]});
+      L.marker([point.lat,point.lon],{icon}).addTo(markers).bindPopup(`<b>${escapeHTML(point.name)}</b><br><strong>1등 누적 ${count}게임 · ${total?.rounds.size || 1}개 회차</strong><br>${escapeHTML(point.mapAddress || point.address)}${point.mapAddress && point.mapAddress !== point.address ? '<br><small>당첨 당시: '+escapeHTML(point.address)+'</small>' : ''}<details><summary>당첨 회차 보기</summary>${[...(total?.rounds || [point.round])].sort((a,b)=>b-a).map(n=>n+'회').join(', ')}</details>`);
+    });
 }
 function locateMe() {
   const button=$('locate-me'), status=$('location-status');
