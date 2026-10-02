@@ -171,17 +171,36 @@ function metricText(game) {
 }
 function readGenerationConditions() {
   const value=id=>$(id).value.trim()==='' ? NaN : Number($(id).value);
-  const ratio=id=>$(id).value==='' ? null : $(id).value.includes('-') ? $(id).value.split('-').map(Number) : value(id);
-  return {oddEven:$('odd-even').checked,highLow:$('high-low').checked,odd:ratio('odd-ratio'),high:ratio('high-ratio'),sumMin:value('sum-min'),sumMax:value('sum-max'),consecutive:value('consecutive'),range:value('range')};
+  const ratio=id=>{const min=value(id+'-min'),max=value(id+'-max');return min===0&&max===6 ? null : [min,max];};
+  return {oddEven:$('odd-even').checked,highLow:$('high-low').checked,odd:ratio('odd'),high:ratio('high'),sumMin:value('sum-min'),sumMax:value('sum-max'),consecutive:value('consecutive'),range:value('range')};
 }
 function ratioText(value,extreme) {
   if(value===null) return extreme ? '극단 제외' : '제한 없음';
   return Array.isArray(value) ? Array.from({length:value[1]-value[0]+1},(_,i)=>`${value[0]+i}:${6-value[0]-i}`).join(' / ') : `${value}:${6-value}`;
 }
 function applyBalancedConditions() {
-  $('odd-ratio').value='2-4';$('high-ratio').value='2-4';
+  $('odd-min').value=2;$('odd-max').value=4;$('high-min').value=2;$('high-max').value=4;
   $('sum-min').value=110;$('sum-max').value=170;
+  generationSettingsChanged();
   $('generator-message').textContent='홀짝·고저 각각 2:4 / 3:3 / 4:2, 합계 110~170을 적용했습니다. 번호 만들기를 누르면 생성합니다.';
+}
+function updateConditionPreview() {
+  const c=readGenerationConditions();
+  const label=(value,extreme)=>{
+    if(value && value[0]>value[1]) return '최소 비율이 최대 비율보다 큽니다';
+    const values=value || [0,6];
+    const allowed=Array.from({length:values[1]-values[0]+1},(_,i)=>values[0]+i).filter(n=>!extreme||(n>0&&n<6));
+    return allowed.length ? allowed.map(n=>`${n}:${6-n}`).join(' / ') : '극단 제외 조건과 충돌합니다';
+  };
+  $('condition-preview').textContent=`생성할 비율 · 홀짝 ${label(c.odd,c.oddEven)} · 고저 ${label(c.high,c.highLow)} · 합계 ${c.sumMin}~${c.sumMax}`;
+}
+function generationSettingsChanged() {
+  updateConditionPreview();
+  if(generated.length) {
+    generated=[];$('copy-numbers').disabled=true;
+    $('generated-numbers').innerHTML='<p class="empty">조건이 변경됐습니다.<br>번호 만들기를 눌러 새 조건으로 생성해주세요.</p>';
+  }
+  $('generator-message').textContent='조건이 변경됐습니다. 번호 만들기를 누르면 현재 조건으로 생성합니다.';
 }
 function extractionWeights() {
   if($('weight-mode').value==='uniform') return Array(46).fill(1);
@@ -247,14 +266,16 @@ $('reset-numbers').addEventListener('click',()=>{selected.clear();[...$('number-
 ['weight-mode','frequency-all','frequency-100','frequency-20','frequency-5','frequency-1'].forEach(id=>$(id).addEventListener('input',updateWeightPreview));
 document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>{
   ['all','100','20','5','1'].forEach((id,i)=>$('frequency-'+id).value=LottoEngine.presets[Number(button.dataset.preset)][i]);
-  $('weight-mode').value='frequency';updateWeightPreview();$('generator-message').textContent=`기존 프리셋 ${Number(button.dataset.preset)+1}의 빈도 계수를 적용했습니다. 비율·합계 제한은 유지됩니다.`;
+  $('weight-mode').value='frequency';generationSettingsChanged();updateWeightPreview();$('generator-message').textContent=`기존 프리셋 ${Number(button.dataset.preset)+1}의 빈도 계수를 적용했습니다. 비율·합계 제한은 유지됩니다.`;
 }));
 $('reset-conditions').addEventListener('click',()=>{
-  $('odd-even').checked=false;$('high-low').checked=false;$('odd-ratio').value='';$('high-ratio').value='';
+  $('odd-even').checked=false;$('high-low').checked=false;$('odd-min').value=0;$('odd-max').value=6;$('high-min').value=0;$('high-max').value=6;
   $('sum-min').value=21;$('sum-max').value=255;$('consecutive').value=6;$('range').value=6;$('weight-mode').value='uniform';
-  updateWeightPreview();$('generator-message').textContent='비율·합계·연속·구간 제한을 해제했습니다. 고정·제외 번호는 유지됩니다.';
+  generationSettingsChanged();updateWeightPreview();$('generator-message').textContent='비율·합계·연속·구간 제한을 해제했습니다. 고정·제외 번호는 유지됩니다.';
 });
 $('balanced-conditions').addEventListener('click',applyBalancedConditions);
+$('generation-settings').addEventListener('input',generationSettingsChanged);
+updateConditionPreview();
 $('generate').addEventListener('click',generateGames);
 $('copy-numbers').addEventListener('click',async()=>{try {await navigator.clipboard.writeText(generated.map(game=>game.join(', ')).join('\n'));$('generator-message').textContent='번호를 복사했습니다.';} catch {$('generator-message').textContent='복사할 수 없습니다. 표시된 번호를 직접 선택해 복사해주세요.';}});
 $('round-search').addEventListener('input',()=>{historyLimit=30;if(data)renderHistory();});
