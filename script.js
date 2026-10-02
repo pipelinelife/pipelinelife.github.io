@@ -64,7 +64,7 @@ function renderHome() {
 function renderHistory() {
   const query = $('round-search').value.trim();
   const rows = [...data.draws].reverse().filter(draw => !query || String(draw.round).includes(query));
-  $('history-list').innerHTML = rows.slice(0,historyLimit).map(draw => `<article class="archive-row"><div><strong>제 ${draw.round}회</strong><time datetime="${draw.date}">${draw.date}</time></div><div class="balls" aria-label="당첨번호 ${draw.numbers.join(', ')}, 보너스 ${draw.bonus}">${balls(draw)}</div></article>`).join('') || '<p class="empty">해당 회차를 찾지 못했습니다.</p>';
+  $('history-list').innerHTML = rows.slice(0,historyLimit).map(draw => `<article class="archive-row"><div><strong>제 ${draw.round}회</strong><time datetime="${draw.date}">${draw.date}</time><div class="archive-metrics">${metricText(draw.numbers)}</div></div><div class="balls" aria-label="당첨번호 ${draw.numbers.join(', ')}, 보너스 ${draw.bonus}">${balls(draw)}</div></article>`).join('') || '<p class="empty">해당 회차를 찾지 못했습니다.</p>';
   $('more-history').hidden = rows.length <= historyLimit;
 }
 function renderStores() {
@@ -137,7 +137,35 @@ function renderAnalysis() {
   rows.forEach(draw => draw.numbers.forEach(n => counts[n]++));
   const max = Math.max(...counts), top = counts.indexOf(max), odd = rows.reduce((total, draw) => total + draw.numbers.filter(n => n % 2).length,0);
   $('analysis-summary').innerHTML = `<div><strong>${rows.length}</strong><span>분석한 회차</span></div><div><strong>${top}번</strong><span>가장 자주 나온 번호 · ${max}회</span></div><div><strong>${(odd / (rows.length * 6) * 100).toFixed(1)}%</strong><span>홀수 번호 비율</span></div>`;
-  $('frequency-chart').innerHTML = Array.from({length:45}, (_,index) => index + 1).map(n => `<div class="frequency-row" aria-label="${n}번 ${counts[n]}회">${ball(n)}<span class="frequency-bar"><i style="width:${max ? counts[n]/max*100 : 0}%"></i></span><span>${counts[n]}회</span></div>`).join('');
+  $('frequency-chart').innerHTML = Array.from({length:45}, (_,index) => index + 1).map(n => `<div class="frequency-row" aria-label="${n}번 ${counts[n]}회">${ball(n)}<span class="frequency-bar"><i style="width:${max ? counts[n]/max*100 : 0}%"></i></span><span>${counts[n]}회<small>${rows.length ? (counts[n]/(rows.length*6)*100).toFixed(2) : '0.00'}%</small></span></div>`).join('');
+  const oddCounts=Array(7).fill(0),highCounts=Array(7).fill(0),sums=Array(12).fill(0);
+  rows.forEach(draw=>{const m=LottoEngine.metrics(draw.numbers);oddCounts[m.odd]++;highCounts[m.high]++;sums[Math.floor((m.sum-21)/20)]++;});
+  const distribution=(label,entries)=>`<table><thead><tr><th>${label}</th><th>출현 횟수</th><th>비율</th></tr></thead><tbody>${entries.map(([name,count])=>`<tr><td>${name}</td><td><i class="distribution-bar" style="width:${rows.length ? count/rows.length*90 : 0}px"></i>${count}회</td><td>${rows.length ? (count/rows.length*100).toFixed(2) : '0.00'}%</td></tr>`).join('')}</tbody></table>`;
+  $('odd-even-ratios').innerHTML=distribution('홀짝 비율',Array.from({length:7},(_,i)=>[ `홀 ${6-i} : 짝 ${i}`,oddCounts[6-i]]));
+  $('high-low-ratios').innerHTML=distribution('고저 비율',Array.from({length:7},(_,i)=>[ `고 ${6-i} : 저 ${i}`,highCounts[6-i]]));
+  $('sum-ranges').innerHTML=distribution('번호 합계',sums.map((count,i)=>[`${21+i*20} ~ ${40+i*20}`,count]));
+}
+function metricText(game) {
+  const m=LottoEngine.metrics(game);
+  return `홀 ${m.odd} : 짝 ${6-m.odd} · 고 ${m.high} : 저 ${6-m.high} · 합계 ${m.sum} · 연속 ${m.consecutive}개`;
+}
+function readGenerationConditions() {
+  const value=id=>$(id).value.trim()==='' ? NaN : Number($(id).value);
+  return {oddEven:$('odd-even').checked,highLow:$('high-low').checked,odd:$('odd-ratio').value==='' ? null : value('odd-ratio'),high:$('high-ratio').value==='' ? null : value('high-ratio'),sumMin:value('sum-min'),sumMax:value('sum-max'),consecutive:value('consecutive'),range:value('range')};
+}
+function extractionWeights() {
+  if($('weight-mode').value==='uniform') return Array(46).fill(1);
+  const coefficients=['all','100','20','5','1'].map(id=>$('frequency-'+id).value.trim()==='' ? NaN : Number($('frequency-'+id).value));
+  if(coefficients.some(n=>!Number.isFinite(n)||Math.abs(n)>1000000)) throw new Error('빈도 계수를 -1,000,000~1,000,000 사이의 숫자로 입력해주세요.');
+  return LottoEngine.scores(data.draws,coefficients);
+}
+function updateWeightPreview() {
+  $('frequency-settings').hidden=$('weight-mode').value==='uniform';
+  if(!data) return;
+  try {
+    const weights=extractionWeights(),pool=Array.from({length:45},(_,i)=>i+1).filter(n=>!selected.has(n)),total=pool.reduce((sum,n)=>sum+weights[n],0);
+    $('probability-list').innerHTML=Array.from({length:45},(_,i)=>i+1).map(n=>`<span class="probability-item"><strong>${n}번</strong> ${selected.get(n)===1 ? '고정' : selected.get(n)===2 ? '제외' : total ? (weights[n]/total*100).toFixed(2)+'%' : '0.00%'}</span>`).join('');
+  } catch(error) { $('probability-list').textContent=error.message; }
 }
 function randomIndex(length) {
   const limit = Math.floor(4294967296/length)*length, bytes = new Uint32Array(1);
@@ -157,18 +185,23 @@ function historicalMatchHTML(game) {
   if (!matches.length) return '<p class="historical-empty">역대 1·2등 번호 일치 없음</p>';
   return `<div class="historical-matches">${matches.map(match=>`<p><strong>${match.rank}등 번호 일치</strong><span>제 ${match.round}회 · ${escapeHTML(match.date)}</span></p>`).join('')}</div>`;
 }
-function generateGames() {
+async function generateGames() {
+  if($('generate').disabled) return;
   if (!data?.draws?.length) { $('generator-message').textContent='당첨 데이터를 불러온 뒤 다시 시도해주세요.'; return; }
   const fixed = [...selected].filter(([,state]) => state === 1).map(([n]) => n);
   const pool = Array.from({length:45},(_,i)=>i+1).filter(n => !selected.has(n));
   if (fixed.length > 6 || pool.length + fixed.length < 6) { $('generator-message').textContent = '고정 번호는 6개 이하, 사용 가능한 번호는 6개 이상으로 선택해주세요.'; return; }
-  generated = Array.from({length:Number($('game-count').value)},() => {
-    const available = [...pool], game = [...fixed];
-    while(game.length < 6) game.push(available.splice(randomIndex(available.length),1)[0]);
-    return game.sort((a,b)=>a-b);
-  });
-  $('generated-numbers').innerHTML = generated.map((game,index) => `<div class="generated-game"><div class="ticket-row"><span>${String.fromCharCode(65+index)}</span><div class="balls">${game.map(ball).join('')}</div></div>${historicalMatchHTML(game)}</div>`).join('');
-  $('copy-numbers').disabled = false;$('generator-message').textContent = `${generated.length}게임 생성 · 1~${data.round}회 1·2등 번호 비교 완료`;
+  $('generate').disabled=true;$('generation-settings').disabled=true;
+  $('generator-message').textContent='설정 조건을 만족하는 번호를 만들고 있습니다…';
+  try {
+    const conditions=readGenerationConditions(), weights=extractionWeights(),mode=$('weight-mode').value;
+    const games=await LottoEngine.generate({conditions,fixed,pool,weights,count:Number($('game-count').value),random:()=>randomIndex(4294967296)/4294967296,yieldUI:()=>new Promise(resolve=>setTimeout(resolve,0))});
+    generated=games;
+    const summary=`${mode==='uniform' ? '균등 무작위' : '빈도 가중치'} · 홀짝 ${conditions.odd===null ? (conditions.oddEven ? '극단 제외' : '제한 없음') : conditions.odd+':'+(6-conditions.odd)} · 고저 ${conditions.high===null ? (conditions.highLow ? '극단 제외' : '제한 없음') : conditions.high+':'+(6-conditions.high)} · 합계 ${conditions.sumMin}~${conditions.sumMax} · 연속 ≤${conditions.consecutive} · 구간별 ≤${conditions.range}`;
+    $('generated-numbers').innerHTML=`<p class="applied-conditions">적용 조건<br>${escapeHTML(summary)}</p>`+generated.map((game,index) => `<div class="generated-game"><div class="ticket-row"><span>${String.fromCharCode(65+index)}</span><div class="balls">${game.map(ball).join('')}</div></div><p class="game-metrics">${metricText(game)}</p>${historicalMatchHTML(game)}</div>`).join('');
+    $('copy-numbers').disabled = false;$('generator-message').textContent = `${generated.length}게임 생성 · 모든 조건 충족 · 1~${data.round}회 1·2등 번호 비교 완료`;
+  } catch(error) { $('generator-message').textContent=error.message+(generated.length ? ' 이전 생성 결과는 그대로 표시됩니다.' : ''); }
+  finally { $('generate').disabled=false;$('generation-settings').disabled=false; }
 }
 for(let n=1;n<=45;n++) {
   const button = document.createElement('button');
@@ -177,10 +210,20 @@ for(let n=1;n<=45;n++) {
     const state = ((selected.get(n)||0)+1)%3;
     if(state === 1 && [...selected.values()].filter(v=>v===1).length>=6) { $('generator-message').textContent='고정 번호는 최대 6개입니다.'; return; }
     state ? selected.set(n,state) : selected.delete(n);
-    button.className=state===1?'fixed':state===2?'excluded':'';button.setAttribute('aria-label',`${n}번 ${state===1?'고정':state===2?'제외':'선택 안 함'}`);$('generator-message').textContent='';
+    button.className=state===1?'fixed':state===2?'excluded':'';button.setAttribute('aria-label',`${n}번 ${state===1?'고정':state===2?'제외':'선택 안 함'}`);$('generator-message').textContent='';updateWeightPreview();
   });$('number-grid').append(button);
 }
-$('reset-numbers').addEventListener('click',()=>{selected.clear();[...$('number-grid').children].forEach((button,index)=>{button.className='';button.setAttribute('aria-label',`${index+1}번 선택 안 함`);});$('generator-message').textContent='선택을 초기화했습니다.';});
+$('reset-numbers').addEventListener('click',()=>{selected.clear();[...$('number-grid').children].forEach((button,index)=>{button.className='';button.setAttribute('aria-label',`${index+1}번 선택 안 함`);});$('generator-message').textContent='선택을 초기화했습니다.';updateWeightPreview();});
+['weight-mode','frequency-all','frequency-100','frequency-20','frequency-5','frequency-1'].forEach(id=>$(id).addEventListener('input',updateWeightPreview));
+document.querySelectorAll('[data-preset]').forEach(button=>button.addEventListener('click',()=>{
+  ['all','100','20','5','1'].forEach((id,i)=>$('frequency-'+id).value=LottoEngine.presets[Number(button.dataset.preset)][i]);
+  $('weight-mode').value='frequency';updateWeightPreview();$('generator-message').textContent=`기존 프리셋 ${Number(button.dataset.preset)+1}의 빈도 계수를 적용했습니다. 비율·합계 제한은 유지됩니다.`;
+}));
+$('reset-conditions').addEventListener('click',()=>{
+  $('odd-even').checked=false;$('high-low').checked=false;$('odd-ratio').value='';$('high-ratio').value='';
+  $('sum-min').value=21;$('sum-max').value=255;$('consecutive').value=6;$('range').value=6;$('weight-mode').value='uniform';
+  updateWeightPreview();$('generator-message').textContent='비율·합계·연속·구간 제한을 해제했습니다. 고정·제외 번호는 유지됩니다.';
+});
 $('generate').addEventListener('click',generateGames);
 $('copy-numbers').addEventListener('click',async()=>{try {await navigator.clipboard.writeText(generated.map(game=>game.join(', ')).join('\n'));$('generator-message').textContent='번호를 복사했습니다.';} catch {$('generator-message').textContent='복사할 수 없습니다. 표시된 번호를 직접 선택해 복사해주세요.';}});
 $('round-search').addEventListener('input',()=>{historyLimit=30;if(data)renderHistory();});
@@ -203,7 +246,7 @@ async function load() {
     $('store-round').replaceChildren(new Option('전체 판매점 · 누적 1등','0'),...rounds.map(n=>new Option(`${n}회`,n)));
     const regions=[...new Set(data.stores.map(store=>store.address.includes('dhlottery.co.kr') ? '온라인' : store.address.trim().split(' ')[0]))].sort();
     $('store-region').replaceChildren(new Option('전국',''),...regions.map(region=>new Option(region,region)));
-    renderStores();renderAnalysis();route();
+    renderStores();renderAnalysis();updateWeightPreview();route();
   } catch(error) {$('status').textContent='데이터 연결을 확인해주세요.';$('load-error').hidden=false;console.error('Lotto data load failed:',error.message);}
 }
 $('retry').addEventListener('click',load);route();load();
