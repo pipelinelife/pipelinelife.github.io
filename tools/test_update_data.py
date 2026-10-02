@@ -3,7 +3,7 @@ from unittest.mock import patch
 import tempfile
 from pathlib import Path
 from update_data import update
-from update_data import validate_draw, validate_stores, encode_csv
+from update_data import validate_draw, validate_stores, encode_csv, location_key, official_locations
 
 
 class ValidationTests(unittest.TestCase):
@@ -38,6 +38,20 @@ class ValidationTests(unittest.TestCase):
 
     def test_csv_quotes(self):
         self.assertIn('"상호,이름"', encode_csv([[1205, '상호,이름']]))
+
+    def test_same_shop_name_different_addresses_never_match(self):
+        self.assertNotEqual(location_key('행운복권', '서울 강남구'), location_key('행운복권', '부산 동구'))
+
+    def test_location_whitespace_is_normalized(self):
+        self.assertEqual(location_key('행운복권', '서울  강남구 '), location_key('행운복권', '서울 강남구'))
+
+    def test_official_moved_store_uses_winning_address_key(self):
+        point = {'shpNm': '행운복권', 'befAddr': '서울 옛주소', 'shpAddr': '서울 새주소', 'shpLat': 37.5, 'shpLot': 127.1}
+        self.assertEqual(official_locations([point])[location_key('행운복권', '서울 옛주소')]['mapAddress'], '서울 새주소')
+
+    def test_online_coordinates_are_not_map_markers(self):
+        point = {'shpNm': '온라인', 'shpAddr': '동행복권(dhlottery.co.kr)', 'shpLat': 37.5, 'shpLot': 127.1}
+        self.assertEqual(official_locations([point]), {})
 
     def test_failed_fetch_keeps_previous_files(self):
         with tempfile.TemporaryDirectory() as folder:

@@ -15,6 +15,10 @@ for draw in draws:
     assert len(nums) == 7 and len(set(nums)) == 7 and all(1 <= n <= 45 for n in nums)
     assert date.fromisoformat(draw['date']) == date(2002, 12, 7) + timedelta(weeks=draw['round'] - 1)
 shops = [s for s in snapshot['stores'] if s['round'] == snapshot['round']]
+for store in snapshot['stores']:
+    if 'lat' in store:
+        assert 30 < store['lat'] < 40 and 120 < store['lon'] < 140
+        assert store.get('mapAddress') and store.get('locationSource') in ('official', 'archive')
 assert len(shops) == snapshot['prizes'][0]['winners']
 with (folder / 'lotto_number_frequency_combined.csv').open(encoding='utf-8-sig') as stream:
     counts = list(csv.reader(stream))[1:]

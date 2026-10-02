@@ -5,6 +5,7 @@ const money = value => Number(value).toLocaleString('ko-KR') + '원';
 const ball = value => `<span class="ball ${value <= 10 ? 'yellow' : value <= 20 ? 'blue' : value <= 30 ? 'red' : value <= 40 ? 'gray' : 'green'}">${Number(value)}</span>`;
 const balls = draw => draw.numbers.map(ball).join('') + `<span class="plus" aria-label="보너스">+</span><span class="bonus">${ball(draw.bonus)}<small>보너스</small></span>`;
 let data, historyLimit = 30, generated = [], map, markers, leafletPromise;
+let mapRenderVersion = 0;
 const selected = new Map();
 const knownPages = ['home','history','stores','analysis','generator','notice'];
 function route() {
@@ -59,30 +60,34 @@ function renderStores() {
   if (!$('stores').hidden) renderMap(rows, round);
 }
 async function renderMap(stores, round) {
-  // Historical coordinates keyed only by shop name are ambiguous; never reuse them.
-  const locations = round === data.round ? data.latestLocations.filter(point => Number.isFinite(point.lat) && Number.isFinite(point.lon) && point.lat > 30 && point.lat < 40 && point.lon > 120 && point.lon < 140 && stores.some(store=>store.name === point.name && store.address.trim() === point.winningAddress)) : [];
-  $('store-map').hidden = !locations.length;
-  $('map-note').textContent = round === data.round ? '최근 회차의 공식 판매점 좌표입니다. 지도에서 자세한 위치를 확인하세요.' : '이 회차는 판매점별 지도 링크에서 위치를 확인할 수 있습니다.';
-  if (!locations.length) return;
+  const version = ++mapRenderVersion;
+  const locations = stores.filter(point => !point.address.includes('dhlottery.co.kr') && Number.isFinite(point.lat) && Number.isFinite(point.lon) && point.lat > 30 && point.lat < 40 && point.lon > 120 && point.lon < 140);
+  const offline = stores.filter(store => !store.address.includes('dhlottery.co.kr'));
+  const missing = offline.filter(store => !locations.includes(store)).length;
+  $('store-map').hidden = false;
+  $('map-note').textContent = `${round}회 · ${locations.length}개 당첨 게임의 판매점 위치${missing ? ` · 좌표 미확인 ${missing}개는 아래 지도 링크로 확인하세요.` : ''}${!offline.length ? ' · 표시할 오프라인 판매점이 없습니다.' : ''} 이동한 판매점은 지도에 현재 주소가 표시될 수 있습니다.`;
   try {
     if (!leafletPromise) leafletPromise = new Promise((resolve,reject)=>{
       const css = document.createElement('link'); css.rel='stylesheet';css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.append(css);
       const script = document.createElement('script');script.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';script.onload=resolve;script.onerror=reject;document.head.append(script);
     });
     await leafletPromise;
-    if (round !== Number($('store-round').value) || $('stores').hidden) return;
+    if (version !== mapRenderVersion || round !== Number($('store-round').value) || $('stores').hidden) return;
     if (!map) {
       map = L.map('store-map').setView([36.3,127.8],7);
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
       markers=L.layerGroup().addTo(map);
     }
     markers.clearLayers();
-    const distinct = [...new Map(locations.map(point=>[point.id,point])).values()];
-    distinct.forEach(point=>L.marker([point.lat,point.lon]).addTo(markers).bindPopup(`<b>${escapeHTML(point.name)}</b><br>${escapeHTML(point.address)}`));
+    const distinct = [...new Map(locations.map(point=>[point.name+'|'+point.address,point])).values()];
+    distinct.forEach(point=>L.marker([point.lat,point.lon]).addTo(markers).bindPopup(`<b>${escapeHTML(point.name)}</b><br>${escapeHTML(point.mapAddress || point.address)}${point.mapAddress && point.mapAddress !== point.address ? '<br><small>당첨 당시: '+escapeHTML(point.address)+'</small>' : ''}`));
     map.invalidateSize();
-    map.fitBounds(distinct.map(point=>[point.lat,point.lon]),{padding:[25,25],maxZoom:13});
+    if (distinct.length) map.fitBounds(distinct.map(point=>[point.lat,point.lon]),{padding:[25,25],maxZoom:13});
+    else map.setView([36.3,127.8],7);
   } catch {
-    $('store-map').hidden=true;$('map-note').textContent='지도를 불러오지 못했습니다. 판매점별 지도 링크를 이용해주세요.';
+    if (version !== mapRenderVersion) return;
+    leafletPromise=undefined;
+    $('map-note').textContent='지도를 불러오지 못했습니다. 판매점별 지도 링크를 이용해주세요.';
   }
 }
 function renderAnalysis() {

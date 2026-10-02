@@ -76,6 +76,29 @@ def read_csv(path):
         return list(csv.reader(stream))
 
 
+def location_key(name, address):
+    return ' '.join(name.split()) + '\x1f' + ' '.join(address.split())
+
+
+def official_locations(items):
+    locations = {}
+    for item in items:
+        name = item.get('shpNm', '').strip()
+        address = (item.get('befAddr') or item.get('shpAddr') or '').strip()
+        if 'dhlottery.co.kr' in address:
+            continue
+        try:
+            lat, lon = float(item['shpLat']), float(item['shpLot'])
+        except (KeyError, ValueError, TypeError):
+            continue
+        if name and address and 30 < lat < 40 and 120 < lon < 140:
+            locations[location_key(name, address)] = {
+                'lat': lat, 'lon': lon, 'mapAddress': (item.get('shpAddr') or address).strip(),
+                'locationSource': 'official',
+            }
+    return locations
+
+
 def update(data_dir, end_round=None):
     now = datetime.now(timezone(timedelta(hours=9)))
     today = now.date()
@@ -87,6 +110,8 @@ def update(data_dir, end_round=None):
         target = min(target, end_round)
     draws = read_csv(data_dir / 'lottoRes.csv')
     shops = read_csv(data_dir / 'lottowinnerstores.csv')
+    location_file = data_dir / 'store-locations.json'
+    locations = json.loads(location_file.read_text(encoding='utf-8')) if location_file.exists() else {}
     existing = {int(row[0]): row for row in draws[1:]}
     if target < max(existing, default=0):
         raise ValueError('Refusing to replace newer data with an older target round')
@@ -113,6 +138,7 @@ def update(data_dir, end_round=None):
         if need_shops or round_no == target:
             items = fetch('/wnprchsplcsrch/selectLtWnShp.do', {'srchLtEpsd': round_no, 'srchWnShpRnk': 1})
             normalized_shops = validate_stores(items, round_no, int(item['rnk1WnNope']))
+            locations.update(official_locations(items))
             if need_shops:
                 shops.extend(normalized_shops)
             if round_no == target:
@@ -130,10 +156,10 @@ def update(data_dir, end_round=None):
         'round': target, 'date': ordered[-1][1], 'source': BASE,
         'draws': [{'round': int(r[0]), 'date': r[1], 'numbers': list(map(int, r[2:8])), 'bonus': int(r[8])} for r in ordered],
         'prizes': [{'rank': i, 'total': int(last_item[f'rnk{i}SumWnAmt']), 'amount': int(last_item[f'rnk{i}WnAmt']), 'winners': int(last_item[f'rnk{i}WnNope'])} for i in range(1, 6)],
-        'stores': [{'round': int(r[0]), 'name': r[1], 'category': r[2], 'address': r[3]} for r in shops[1:]],
+        'stores': [{'round': int(r[0]), 'name': r[1], 'category': r[2], 'address': r[3], **locations.get(location_key(r[1], r[3]), {})} for r in shops[1:]],
         'latestLocations': [{'name': s['shpNm'].strip(), 'address': s['shpAddr'].strip(), 'winningAddress': (s.get('befAddr') or s['shpAddr']).strip(), 'lat': s.get('shpLat'), 'lon': s.get('shpLot'), 'id': s.get('ltShpId')} for s in current_store_items],
     }
-    files = {'lottoRes.csv': encode_csv([draws[0], *ordered]), 'lottowinnerstores.csv': encode_csv(shops), 'lastlotto_results.csv': encode_csv(prizes), 'lotto_number_frequency_combined.csv': encode_csv(frequency), 'snapshot.json': json.dumps(snapshot, ensure_ascii=False, separators=(',', ':')) + '\n'}
+    files = {'lottoRes.csv': encode_csv([draws[0], *ordered]), 'lottowinnerstores.csv': encode_csv(shops), 'lastlotto_results.csv': encode_csv(prizes), 'lotto_number_frequency_combined.csv': encode_csv(frequency), 'store-locations.json': json.dumps(locations, ensure_ascii=False, separators=(',', ':')) + '\n', 'snapshot.json': json.dumps(snapshot, ensure_ascii=False, separators=(',', ':')) + '\n'}
     # Do not touch original files until all requests and validation have succeeded.
     for filename, content in files.items():
         temporary = data_dir / (filename + '.tmp')
