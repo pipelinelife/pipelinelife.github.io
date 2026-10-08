@@ -41,6 +41,8 @@ jobs:
             git push
           fi
       - uses: actions/configure-pages@v5
+      - name: Build crawlable generator page
+        run: python tools/build_search_pages.py
       - uses: actions/upload-pages-artifact@v4
         with:
           path: '.'
