@@ -31,8 +31,9 @@ const selected = new Map();
 const knownPages = ['home','history','stores','analysis','generator','notice'];
 function route() {
   const name = location.hash.slice(1).split('?')[0];
-  const page = knownPages.includes(name) ? name : 'home';
-  document.querySelector('.intro').hidden = page !== 'home';
+  const page = knownPages.includes(name) ? name : (document.body.dataset.page || 'home');
+  if(page==='generator' && location.pathname!=='/generator/') { location.replace('/generator/');return; }
+  const intro=document.querySelector('.intro');if(intro) intro.hidden = page !== 'home';
   const period = new URLSearchParams(location.hash.split('?')[1] || '').get('period');
   if(page === 'analysis' && ['0','1','5','20','100'].includes(period)) $('analysis-period').value=period;
   document.querySelectorAll('.page').forEach(node => { node.hidden = node.id !== page; });
@@ -288,7 +289,7 @@ $('analysis-period').addEventListener('change',()=>{history.replaceState(null,''
 async function load() {
   $('load-error').hidden=true;
   try {
-    const response = await fetch('CSV/snapshot.json',{cache:'no-cache'});
+    const response = await fetch('/CSV/snapshot.json',{cache:'no-cache'});
     if(!response.ok) throw new Error('Snapshot unavailable');
     data = await response.json();
     if(!data.draws?.length || !data.stores || !data.prizes?.length || data.round !== data.draws.at(-1).round) throw new Error('Invalid snapshot');
