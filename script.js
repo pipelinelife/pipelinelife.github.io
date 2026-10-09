@@ -250,6 +250,9 @@ async function generateGames() {
     const summary=`${mode==='uniform' ? '균등 무작위' : '빈도 가중치'} · 홀짝 ${ratioText(conditions.odd,conditions.oddEven)} · 고저 ${ratioText(conditions.high,conditions.highLow)} · 합계 ${conditions.sumMin}~${conditions.sumMax} · 연속 ≤${conditions.consecutive} · 구간별 ≤${conditions.range}`;
     $('generated-numbers').innerHTML=`<p class="applied-conditions">적용 조건<br>${escapeHTML(summary)}</p>`+generated.map((game,index) => `<div class="generated-game"><div class="ticket-row"><span>${String.fromCharCode(65+index)}</span><div class="balls">${game.map(ball).join('')}</div></div><p class="game-metrics">${metricText(game)}</p>${historicalMatchHTML(game)}</div>`).join('');
     $('copy-numbers').disabled = false;$('generator-message').textContent = `${generated.length}게임 생성 · 모든 조건 충족 · 1~${data.round}회 1·2등 번호 비교 완료`;
+    const result=$('generation-result');
+    result.focus({preventScroll:true});
+    result.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',block:'start'});
   } catch(error) { $('generator-message').textContent=error.message+(generated.length ? ' 이전 생성 결과는 그대로 표시됩니다.' : ''); }
   finally { $('generate').disabled=false;$('generation-settings').disabled=false; }
 }
