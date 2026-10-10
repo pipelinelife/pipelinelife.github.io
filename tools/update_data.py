@@ -15,6 +15,17 @@ from pathlib import Path
 
 BASE = 'https://www.dhlottery.co.kr'
 ROOT = Path(__file__).resolve().parents[1]
+KST = timezone(timedelta(hours=9))
+
+
+def expected_latest_round(now=None):
+    """Use the same Korean publication window for collection and freshness checks."""
+    now = datetime.now(KST) if now is None else now.astimezone(KST)
+    today = now.date()
+    last_saturday = today - timedelta(days=(today.weekday() - 5) % 7)
+    if today.weekday() == 5 and now.hour < 21:
+        last_saturday -= timedelta(days=7)
+    return (last_saturday - date(2002, 12, 7)).days // 7 + 1
 
 
 def fetch(path, params):
@@ -100,12 +111,7 @@ def official_locations(items):
 
 
 def update(data_dir, end_round=None):
-    now = datetime.now(timezone(timedelta(hours=9)))
-    today = now.date()
-    last_saturday = today - timedelta(days=(today.weekday() - 5) % 7)
-    if today.weekday() == 5 and now.hour < 21:
-        last_saturday -= timedelta(days=7)
-    target = (last_saturday - date(2002, 12, 7)).days // 7 + 1
+    target = expected_latest_round()
     if end_round is not None:
         target = min(target, end_round)
     draws = read_csv(data_dir / 'lottoRes.csv')

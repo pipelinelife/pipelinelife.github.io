@@ -3,8 +3,13 @@ on:
   push:
     branches: [main]
   schedule:
+    # Primary Saturday collection: 21:17–23:47 KST.
     - cron: '17,47 12-14 * * 6'
-    - cron: '23 1 * * 0'
+    # Catch up overnight and on Sunday if GitHub delays/drops a scheduled event.
+    - cron: '23 15-23 * * 6'
+    - cron: '23 0-14 * * 0'
+    # Weekday safety net: 13:23 KST; no official requests when already current.
+    - cron: '23 4 * * 1-5'
   workflow_dispatch:
 permissions:
   contents: write
@@ -25,11 +30,16 @@ jobs:
           python-version: '3.12'
       - name: Validate collector
         run: python -m unittest discover -s tools -p 'test_*.py'
+      - name: Check whether collection is due
+        id: freshness
+        run: python tools/refresh_status.py
       - name: Collect and validate complete snapshot
-        if: github.event_name != 'push'
+        if: steps.freshness.outputs.collect == 'true'
         run: python tools/update_data.py
       - name: Check snapshot consistency
-        run: python tools/check_snapshot.py
+        run: |
+          python tools/check_snapshot.py
+          python tools/refresh_status.py --require-current
       - name: Commit validated data
         run: |
           git config user.name 'github-actions[bot]'
