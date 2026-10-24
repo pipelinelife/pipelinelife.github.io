@@ -3,10 +3,10 @@ on:
   push:
     branches: [main]
   schedule:
-    # First Saturday collection: 21:10 KST (12:10 UTC).
-    - cron: '10 12 * * 6'
-    # Retry while winning shop names/addresses are being published: 21:17–23:47 KST.
-    - cron: '17,47 12-14 * * 6'
+    # First Saturday collection: 21:20 KST (12:20 UTC).
+    - cron: '20 12 * * 6'
+    # Retry while winning shop names/addresses are being published: 21:27–23:57 KST.
+    - cron: '27,57 12-14 * * 6'
     # Catch up overnight and on Sunday if GitHub delays/drops a scheduled event.
     - cron: '23 15-23 * * 6'
     - cron: '23 0-14 * * 0'
